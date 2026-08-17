@@ -1,0 +1,38 @@
+/**
+ * Rivo — design tokens ("Ledger")
+ * Источник: FRONTEND_TZ.md §3.1/3.2. Единственное место, где эти значения объявлены —
+ * компоненты и страницы всегда ссылаются на переменные, не хардкодят цвета/шрифты.
+ */
+:root {
+  /* Paper / ink palette */
+  --paper: #f7f5ef;
+  --paper-raised: #ffffff;
+  --ink: #1f2a24;
+  --ink-muted: #5b6b60;
+  --ink-faint: #98a499;
+  --rule: #ddd7c6;
+  --rule-strong: #c7bea5;
+
+  --accent: #2f5d45;
+  --accent-ink: #f7f5ef;
+  --accent-soft: #e4ece4;
+
+  --good: #2f7d4f;
+  --good-soft: #e4f0e7;
+  --warn: #9c6b12;
+  --warn-soft: #f4ead3;
+  --critical: #a23b2e;
+  --critical-soft: #f5e1dc;
+
+  /* Typography roles — не смешивать */
+  --font-display: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-data: 'Courier New', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Layout */
+  --radius: 4px;
+  --sidebar-width: 248px;
+  --topbar-height: 60px;
+
+  --shadow-card: 0 1px 2px rgba(31, 42, 36, 0.06), 0 1px 1px rgba(31, 42, 36, 0.04);
+}

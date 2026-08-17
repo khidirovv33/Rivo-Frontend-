@@ -1,0 +1,127 @@
+.topbar {
+  height: var(--topbar-height);
+  flex-shrink: 0;
+  background: var(--paper-raised);
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 0 20px;
+  position: relative;
+}
+
+.switcher {
+  position: relative;
+}
+
+.switcherButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.switcherButton:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 220px;
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 6px;
+  z-index: 20;
+}
+
+.menuGroupLabel {
+  padding: 6px 8px 2px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-faint);
+}
+
+.menuItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 7px 8px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  color: var(--ink);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.menuItem:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.menuItemActive {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.divider {
+  height: 100%;
+  width: 1px;
+  background: var(--rule);
+  margin: 0 4px;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.userName {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.userRole {
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+
+.logoutButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  background: none;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.logoutButton:hover {
+  background: var(--critical-soft);
+  color: var(--critical);
+}

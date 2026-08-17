@@ -1,0 +1,62 @@
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+  align-items: start;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+}
+
+.totals {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 14px;
+}
+
+.totalsRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.totalsRowMain {
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  font-weight: 700;
+  border-top: 1px solid var(--rule);
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+.discountField {
+  max-width: 200px;
+}
+
+.checkoutError {
+  font-size: 12px;
+  color: var(--critical);
+  background: var(--critical-soft);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  margin-top: 10px;
+}
+
+.checkoutButton {
+  width: 100%;
+  margin-top: 12px;
+}

@@ -1,0 +1,20 @@
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+  max-width: 700px;
+}
+
+.cardTitle {
+  font-size: 15px;
+  margin-bottom: 14px;
+}
+
+.success {
+  font-size: 12px;
+  color: var(--good);
+  background: var(--good-soft);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+}

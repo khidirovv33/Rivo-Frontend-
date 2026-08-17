@@ -1,0 +1,11 @@
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.text {
+  color: var(--ink-faint);
+  font-size: 13px;
+}

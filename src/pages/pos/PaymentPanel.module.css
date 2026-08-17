@@ -1,0 +1,39 @@
+.row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.method {
+  width: 130px;
+}
+
+.amount {
+  flex: 1;
+}
+
+.summary {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 8px 0;
+  border-top: 1px dashed var(--rule);
+  margin-top: 4px;
+}
+
+.mismatch {
+  color: var(--critical);
+  font-weight: 600;
+}
+
+.match {
+  color: var(--good);
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}

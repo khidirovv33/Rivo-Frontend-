@@ -1,0 +1,32 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.good {
+  background: var(--good-soft);
+  color: var(--good);
+}
+
+.warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+.critical {
+  background: var(--critical-soft);
+  color: var(--critical);
+}
+
+.neutral {
+  background: var(--rule);
+  color: var(--ink-muted);
+}
