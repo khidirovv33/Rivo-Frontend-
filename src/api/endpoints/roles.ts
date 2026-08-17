@@ -12,6 +12,13 @@ export async function getRole(id: string): Promise<RoleDto> {
   return data.data!;
 }
 
+// Без пермишен-гейта на бэкенде — любой авторизованный пользователь может узнать права своей
+// же роли (Roles.Read защищает управление ролями, не самоинспекцию). Использовать в usePermissions().
+export async function getMyRole(): Promise<RoleDto> {
+  const { data } = await apiClient.get<ApiResponse<RoleDto>>('/roles/me');
+  return data.data!;
+}
+
 export async function createRole(payload: CreateRoleRequest): Promise<RoleDto> {
   const { data } = await apiClient.post<ApiResponse<RoleDto>>('/roles', payload);
   return data.data!;
