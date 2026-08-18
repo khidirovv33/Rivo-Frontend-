@@ -1,0 +1,80 @@
+.wrapper {
+  position: relative;
+}
+
+.results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  z-index: 10;
+}
+
+.resultRow {
+  padding: 8px 12px;
+  border-bottom: 1px dashed var(--rule);
+}
+
+.resultRow:last-child {
+  border-bottom: none;
+}
+
+.resultMain {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.resultMain:hover {
+  color: var(--accent);
+}
+
+.resultName {
+  font-size: 13px;
+}
+
+.resultMeta {
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+
+.resultPrice {
+  flex-shrink: 0;
+}
+
+.variations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 0 6px;
+}
+
+.variationChip {
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.variationChip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.empty {
+  padding: 12px;
+  font-size: 12px;
+  color: var(--ink-faint);
+}

@@ -1,0 +1,74 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.storeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.storeName {
+  font-size: 17px;
+}
+
+.storeHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.meta {
+  margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.branches {
+  margin-top: 16px;
+  border-top: 1px solid var(--rule);
+  padding-top: 12px;
+}
+
+.branchesHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.branchesTitle {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+
+.branchRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--rule);
+}
+
+.branchRow:last-child {
+  border-bottom: none;
+}
+
+.branchName {
+  flex: 1;
+  font-size: 13px;
+}
+
+.branchMeta {
+  font-size: 12px;
+  color: var(--ink-faint);
+}

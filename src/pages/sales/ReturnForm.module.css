@@ -1,0 +1,31 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--rule);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.name {
+  flex: 1;
+  font-size: 13px;
+}
+
+.available {
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+.qtyInput {
+  width: 70px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: var(--radius);
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--ink);
+}

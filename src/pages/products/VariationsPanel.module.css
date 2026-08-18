@@ -1,0 +1,53 @@
+.wrapper {
+  border-top: 1px solid var(--rule);
+  margin-top: 4px;
+  padding-top: 16px;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.headingTitle {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+
+.row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--rule);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.cell {
+  font-size: 13px;
+}
+
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.addForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.addField {
+  width: 110px;
+}

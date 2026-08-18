@@ -1,0 +1,40 @@
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  font-size: 13px;
+  color: var(--ink-muted);
+  margin-bottom: 14px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+  margin: 14px 0 8px;
+}
+
+.totalsRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 3px 0;
+}
+
+.totalsRowMain {
+  display: flex;
+  justify-content: space-between;
+  font-size: 15px;
+  font-weight: 700;
+  border-top: 1px solid var(--rule);
+  padding-top: 6px;
+  margin-top: 4px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
