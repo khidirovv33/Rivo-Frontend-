@@ -1,0 +1,43 @@
+.itemsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.itemsLabel {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  letter-spacing: 0.02em;
+}
+
+.qtyInput,
+.priceInput {
+  width: 90px;
+  padding: 6px 8px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  font-family: 'Courier New', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  background: var(--paper-raised);
+  color: var(--ink);
+}
+
+.totalRow {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  font-size: 14px;
+  padding-top: 4px;
+}
+
+.totalLabel {
+  color: var(--ink-muted);
+}
+
+.totalValue {
+  font-family: 'Courier New', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}

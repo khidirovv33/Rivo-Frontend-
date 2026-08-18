@@ -1,0 +1,10 @@
+.toolbar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 14px;
+  align-items: flex-end;
+}
+
+.statusSelect {
+  min-width: 200px;
+}
