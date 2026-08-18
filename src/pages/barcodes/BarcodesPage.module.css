@@ -1,0 +1,91 @@
+.layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.pickerColumn {
+  flex: 1;
+  min-width: 280px;
+}
+
+.previewColumn {
+  flex: 1;
+  min-width: 280px;
+}
+
+.selectedProduct {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--rule);
+}
+
+.productName {
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.productSku {
+  color: var(--ink-faint);
+  font-size: 12px;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--paper-raised);
+  width: fit-content;
+}
+
+.labelProductName {
+  font-size: 13px;
+  text-align: center;
+}
+
+.labelPrice {
+  font-family: 'Courier New', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.barcodeImage {
+  max-width: 260px;
+}
+
+.barcodeValue {
+  font-family: 'Courier New', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.printOverlay {
+  display: none;
+}
+
+@media print {
+  body > *:not(.printOverlay) {
+    display: none;
+  }
+
+  .printOverlay {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+  }
+}

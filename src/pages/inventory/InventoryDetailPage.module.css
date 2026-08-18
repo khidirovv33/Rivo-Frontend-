@@ -1,0 +1,29 @@
+.summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.actualInput {
+  width: 100px;
+  padding: 6px 8px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  font-family: 'Courier New', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  background: var(--paper-raised);
+  color: var(--ink);
+}
+
+.actualInput:disabled {
+  color: var(--ink-faint);
+  background: var(--paper);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}

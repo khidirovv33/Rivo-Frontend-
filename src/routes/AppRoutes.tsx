@@ -19,6 +19,15 @@ import { LoyaltyLevelsPage } from '@/pages/customers/LoyaltyLevelsPage';
 import { EmployeesPage } from '@/pages/employees/EmployeesPage';
 import { RolesPage } from '@/pages/roles/RolesPage';
 import { ProfilePage } from '@/pages/profile/ProfilePage';
+import { WarehousePage } from '@/pages/warehouse/WarehousePage';
+import { WarehouseMovementsPage } from '@/pages/warehouse/WarehouseMovementsPage';
+import { SuppliersPage } from '@/pages/suppliers/SuppliersPage';
+import { PurchasesPage } from '@/pages/purchases/PurchasesPage';
+import { ReceivingPage } from '@/pages/purchases/ReceivingPage';
+import { TransfersPage } from '@/pages/transfers/TransfersPage';
+import { InventoryPage } from '@/pages/inventory/InventoryPage';
+import { InventoryDetailPage } from '@/pages/inventory/InventoryDetailPage';
+import { BarcodesPage } from '@/pages/barcodes/BarcodesPage';
 
 export function AppRoutes() {
   return (
@@ -52,10 +61,15 @@ export function AppRoutes() {
         <Route path="/products/brands" element={<BrandsPage />} />
         <Route path="/customers" element={<CustomersPage />} />
         <Route path="/customers/loyalty-levels" element={<LoyaltyLevelsPage />} />
-        <Route path="/warehouse" element={<ComingSoon title="Склад" />} />
-        <Route path="/purchases" element={<ComingSoon title="Закупки" />} />
-        <Route path="/transfers" element={<ComingSoon title="Перемещения" />} />
-        <Route path="/inventory" element={<ComingSoon title="Ревизии" />} />
+        <Route path="/warehouse" element={<WarehousePage />} />
+        <Route path="/warehouse/movements" element={<WarehouseMovementsPage />} />
+        <Route path="/suppliers" element={<SuppliersPage />} />
+        <Route path="/purchases" element={<PurchasesPage />} />
+        <Route path="/purchases/receiving" element={<ReceivingPage />} />
+        <Route path="/transfers" element={<TransfersPage />} />
+        <Route path="/inventory" element={<InventoryPage />} />
+        <Route path="/inventory/:id" element={<InventoryDetailPage />} />
+        <Route path="/barcodes" element={<BarcodesPage />} />
         <Route path="/finance" element={<ComingSoon title="Финансы" />} />
         <Route path="/reports" element={<ComingSoon title="Отчёты" />} />
         <Route path="/employees" element={<EmployeesPage />} />
