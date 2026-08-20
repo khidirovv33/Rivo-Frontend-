@@ -1,0 +1,56 @@
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.breakdown {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-bottom: 1px dashed var(--rule);
+  font-size: 13px;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.rowLabel {
+  color: var(--ink-muted);
+}
+
+.rowMinus .rowLabel::before {
+  content: '− ';
+  color: var(--ink-faint);
+}
+
+.rowMinus .rowValue {
+  color: var(--critical);
+}
+
+.subtotal {
+  font-weight: 700;
+  color: var(--ink);
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.final {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--accent);
+  padding-top: 12px;
+}
+
+.chartTitle {
+  font-size: 15px;
+  margin-bottom: 12px;
+}

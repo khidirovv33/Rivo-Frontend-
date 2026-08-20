@@ -415,3 +415,312 @@ export interface CreateReturnRequest {
   reason?: string;
   items: CreateReturnItemRequest[];
 }
+
+// ---- Dashboard ----
+
+export interface DailySalesPointDto {
+  date: string;
+  total: number;
+}
+
+export interface TopProductDto {
+  productId: string;
+  productName: string;
+  quantitySold: number;
+  revenue: number;
+}
+
+export interface DashboardDto {
+  salesToday: number;
+  salesChangePercent: number | null;
+  ordersToday: number;
+  ordersChangePercent: number | null;
+  averageCheckToday: number;
+  averageCheckChangePercent: number | null;
+  lowStockProductCount: number;
+  lowStockWarehouseCount: number;
+  weeklySales: DailySalesPointDto[];
+  topProducts: TopProductDto[];
+}
+
+// ---- Warehouses / Stock / Stock movements ----
+
+export interface WarehouseDto {
+  id: string;
+  storeId: string;
+  branchId: string | null;
+  name: string;
+  address: string | null;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface CreateWarehouseRequest {
+  storeId: string;
+  branchId?: string;
+  name: string;
+  address?: string;
+}
+
+export interface UpdateWarehouseRequest {
+  name: string;
+  address?: string;
+  isActive: boolean;
+}
+
+export interface StockDto {
+  id: string;
+  warehouseId: string;
+  warehouseName: string;
+  productId: string;
+  productName: string;
+  productVariationId: string | null;
+  systemQuantity: number;
+  reservedQuantity: number;
+  availableQuantity: number;
+}
+
+export const StockMovementType = {
+  Receipt: 1,
+  Issue: 2,
+  Sale: 3,
+  Return: 4,
+  WriteOff: 5,
+  Adjustment: 6,
+  TransferOut: 7,
+  TransferIn: 8,
+} as const;
+export type StockMovementType = (typeof StockMovementType)[keyof typeof StockMovementType];
+
+export interface StockMovementDto {
+  id: string;
+  warehouseId: string;
+  productId: string;
+  productVariationId: string | null;
+  type: StockMovementType;
+  quantity: number;
+  quantityBefore: number;
+  quantityAfter: number;
+  reason: string | null;
+  referenceType: string | null;
+  referenceId: string | null;
+  createdBy: string | null;
+  createdAt: string;
+}
+
+// ---- Suppliers ----
+
+export interface SupplierDto {
+  id: string;
+  name: string;
+  contactPerson: string | null;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  notes: string | null;
+  isActive: boolean;
+  outstandingDebt: number;
+  createdAt: string;
+}
+
+export interface CreateSupplierRequest {
+  name: string;
+  contactPerson?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  notes?: string;
+}
+
+export interface UpdateSupplierRequest extends CreateSupplierRequest {
+  isActive: boolean;
+}
+
+// ---- Purchase orders / Purchases / Receiving ----
+
+export const PurchaseOrderStatus = {
+  Draft: 1,
+  Sent: 2,
+  Confirmed: 3,
+  PartiallyReceived: 4,
+  Received: 5,
+  Cancelled: 6,
+} as const;
+export type PurchaseOrderStatus = (typeof PurchaseOrderStatus)[keyof typeof PurchaseOrderStatus];
+
+export interface PurchaseOrderItemDto {
+  id: string;
+  productId: string;
+  productVariationId: string | null;
+  quantity: number;
+  unitCost: number;
+  receivedQuantity: number;
+}
+
+export interface PurchaseOrderDto {
+  id: string;
+  supplierId: string;
+  warehouseId: string;
+  orderNumber: string;
+  status: PurchaseOrderStatus;
+  orderDate: string;
+  expectedDate: string | null;
+  notes: string | null;
+  totalAmount: number;
+  items: PurchaseOrderItemDto[];
+}
+
+export interface CreatePurchaseOrderItemRequest {
+  productId: string;
+  productVariationId?: string;
+  quantity: number;
+  unitCost: number;
+}
+
+export interface CreatePurchaseOrderRequest {
+  supplierId: string;
+  warehouseId: string;
+  expectedDate?: string;
+  notes?: string;
+  items: CreatePurchaseOrderItemRequest[];
+}
+
+export const ReceivingStatus = { Draft: 1, Completed: 2, Cancelled: 3 } as const;
+export type ReceivingStatus = (typeof ReceivingStatus)[keyof typeof ReceivingStatus];
+
+export interface ReceivingItemDto {
+  id: string;
+  purchaseOrderItemId: string;
+  productId: string;
+  productVariationId: string | null;
+  quantityReceived: number;
+  unitCost: number;
+}
+
+export interface ReceivingDto {
+  id: string;
+  purchaseOrderId: string;
+  warehouseId: string;
+  receivingDate: string;
+  status: ReceivingStatus;
+  notes: string | null;
+  items: ReceivingItemDto[];
+}
+
+export interface CreateReceivingItemRequest {
+  purchaseOrderItemId: string;
+  quantityReceived: number;
+  unitCost?: number;
+}
+
+export interface CreateReceivingRequest {
+  purchaseOrderId: string;
+  notes?: string;
+  items: CreateReceivingItemRequest[];
+}
+
+export interface PurchaseDto {
+  id: string;
+  supplierId: string;
+  purchaseOrderId: string;
+  receivingId: string;
+  purchaseDate: string;
+  totalAmount: number;
+  paidAmount: number;
+  outstandingAmount: number;
+  notes: string | null;
+}
+
+export interface RecordPaymentRequest {
+  amount: number;
+  notes?: string;
+}
+
+// ---- Transfers ----
+
+export const TransferStatus = {
+  Draft: 1,
+  Pending: 2,
+  Approved: 3,
+  Shipped: 4,
+  Received: 5,
+  Cancelled: 6,
+} as const;
+export type TransferStatus = (typeof TransferStatus)[keyof typeof TransferStatus];
+
+export interface TransferItemDto {
+  id: string;
+  productId: string;
+  productVariationId: string | null;
+  quantity: number;
+}
+
+export interface TransferDto {
+  id: string;
+  sourceWarehouseId: string;
+  destinationWarehouseId: string;
+  transferNumber: string;
+  status: TransferStatus;
+  transferDate: string;
+  notes: string | null;
+  items: TransferItemDto[];
+}
+
+export interface CreateTransferItemRequest {
+  productId: string;
+  productVariationId?: string;
+  quantity: number;
+}
+
+export interface CreateTransferRequest {
+  sourceWarehouseId: string;
+  destinationWarehouseId: string;
+  notes?: string;
+  items: CreateTransferItemRequest[];
+}
+
+// ---- Inventories (stock counts / revisions) ----
+
+export const InventoryStatus = { Draft: 1, Completed: 2, Approved: 3, Cancelled: 4 } as const;
+export type InventoryStatus = (typeof InventoryStatus)[keyof typeof InventoryStatus];
+
+export interface InventoryItemDto {
+  id: string;
+  inventoryId: string;
+  productId: string;
+  productVariationId: string | null;
+  systemQuantity: number;
+  actualQuantity: number;
+  difference: number;
+  unitCost: number;
+  differenceCost: number;
+}
+
+export interface InventoryDto {
+  id: string;
+  warehouseId: string;
+  inventoryNumber: string;
+  status: InventoryStatus;
+  responsibleUserId: string;
+  startedAt: string;
+  completedAt: string | null;
+  approvedAt: string | null;
+  notes: string | null;
+  items: InventoryItemDto[];
+  shortageQuantity: number;
+  surplusQuantity: number;
+  shortageCost: number;
+  surplusCost: number;
+}
+
+export interface CreateInventoryRequest {
+  warehouseId: string;
+  notes?: string;
+}
+
+export interface ScanInventoryItemRequest {
+  productId: string;
+  productVariationId?: string;
+  actualQuantity: number;
+  unitCost?: number;
+}

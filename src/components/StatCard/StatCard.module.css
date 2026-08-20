@@ -25,6 +25,10 @@
   color: var(--ink);
 }
 
+.valueCritical {
+  color: var(--critical);
+}
+
 .trendRow {
   display: flex;
   align-items: center;
@@ -52,4 +56,9 @@
   flex: 1;
   height: 22px;
   min-width: 40px;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--ink-faint);
 }

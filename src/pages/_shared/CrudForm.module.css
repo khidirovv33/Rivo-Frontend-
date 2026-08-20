@@ -29,3 +29,23 @@
   padding: 0;
 }
 
+.inlineNumber {
+  width: 90px;
+  padding: 6px 8px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  font-family: var(--font-data);
+  font-size: 13px;
+  background: var(--paper-raised);
+  color: var(--ink);
+}
+
+.formTotal {
+  flex: 1;
+  font-family: var(--font-data);
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+

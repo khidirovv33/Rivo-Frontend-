@@ -1,0 +1,71 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legend {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--ink-muted);
+}
+
+.swatch {
+  width: 10px;
+  height: 2px;
+  border-radius: 1px;
+}
+
+.swatchRevenue {
+  background: var(--rule-strong);
+}
+
+.swatchProfit {
+  background: var(--accent);
+}
+
+.chart {
+  width: 100%;
+  height: 220px;
+  overflow: visible;
+}
+
+.gridLine {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+
+.revenueLine {
+  stroke: var(--rule-strong);
+  stroke-width: 1.6;
+}
+
+.profitLine {
+  stroke: var(--accent);
+  stroke-width: 2.2;
+}
+
+.profitDot {
+  fill: var(--accent);
+}
+
+.monthLabel {
+  fill: var(--ink-faint);
+  font-family: var(--font-data);
+  font-size: 10px;
+}
+
+.endLabel {
+  fill: var(--accent);
+  font-family: var(--font-data);
+  font-size: 11px;
+  font-weight: 700;
+}

@@ -1,0 +1,84 @@
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.chartCard {
+  margin-bottom: 20px;
+}
+
+.topProductsCard {
+  margin-bottom: 20px;
+}
+
+.chartHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.chartTitle {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.chartUnit {
+  font-family: var(--font-data);
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+.topProductsList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.topProductRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.topProductRow:last-child {
+  border-bottom: none;
+}
+
+.topProductRank {
+  font-family: var(--font-data);
+  font-size: 12px;
+  color: var(--ink-faint);
+  width: 18px;
+}
+
+.topProductName {
+  flex: 1;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.topProductQty {
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.topProductRevenue {
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  min-width: 90px;
+  text-align: right;
+}

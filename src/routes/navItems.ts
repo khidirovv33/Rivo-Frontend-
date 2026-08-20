@@ -1,5 +1,8 @@
 import type { SidebarItem } from '@/components';
 import {
+  AnalyticsIcon,
+  AuditIcon,
+  BellIcon,
   CustomersIcon,
   DashboardIcon,
   EmployeesIcon,
@@ -36,6 +39,9 @@ export const NAV_ITEMS: NavItemConfig[] = [
   { to: '/inventory', label: 'Ревизии', icon: InventoryIcon },
   { to: '/finance', label: 'Финансы', icon: FinanceIcon },
   { to: '/reports', label: 'Отчёты', icon: ReportsIcon },
+  { to: '/analytics', label: 'Аналитика', icon: AnalyticsIcon },
+  { to: '/audit-log', label: 'Журнал действий', icon: AuditIcon },
+  { to: '/notifications', label: 'Уведомления', icon: BellIcon },
   { to: '/employees', label: 'Сотрудники', icon: EmployeesIcon, permission: 'Users.Read' },
   { to: '/roles', label: 'Роли', icon: RolesIcon, permission: 'Roles.Read' },
   { to: '/settings/stores', label: 'Магазины', icon: SettingsIcon, permission: 'Stores.Read' },

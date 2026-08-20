@@ -1,0 +1,9 @@
+.toolbar {
+  display: flex;
+  margin-bottom: 14px;
+}
+
+.filter {
+  max-width: 260px;
+  flex: 1;
+}
