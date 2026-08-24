@@ -1,16 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { EmptyState, ErrorState, Loader, PageHeader, Pagination, Select, Table, Td, TextField, Th } from '@/components';
 import * as stockApi from '@/api/endpoints/stock';
 import * as warehousesApi from '@/api/endpoints/warehouses';
 import { useStoreBranch } from '@/store-context/useStoreBranch';
+import { useProductLookup } from '../_shared/useProductLookup';
 import { WarehouseTabs } from './WarehouseTabs';
 import styles from './WarehousePage.module.css';
 
 const PAGE_SIZE = 20;
 
 export function WarehousePage() {
-  const { currentBranch } = useStoreBranch();
+  const { currentStore } = useStoreBranch();
 
   const [pageNumber, setPageNumber] = useState(1);
   const [warehouseId, setWarehouseId] = useState('');
@@ -26,10 +27,11 @@ export function WarehousePage() {
   }, [searchInput]);
 
   const { data: warehouses = [] } = useQuery({
-    queryKey: ['warehouses', currentBranch?.id],
-    queryFn: () => warehousesApi.listAllWarehouses(currentBranch!.id),
-    enabled: Boolean(currentBranch),
+    queryKey: ['warehouses', currentStore?.id],
+    queryFn: () => warehousesApi.listAllWarehouses(currentStore!.id),
+    enabled: Boolean(currentStore),
   });
+  const warehouseNameById = useMemo(() => new Map(warehouses.map((w) => [w.id, w.name])), [warehouses]);
 
   const {
     data: page,
@@ -46,6 +48,8 @@ export function WarehousePage() {
         warehouseId: warehouseId || undefined,
       }),
   });
+
+  const { getName, getSku } = useProductLookup((page?.items ?? []).map((s) => s.productId));
 
   return (
     <div>
@@ -102,10 +106,10 @@ export function WarehousePage() {
             <tbody>
               {page.items.map((stock) => (
                 <tr key={stock.id}>
-                  <Td className="font-data">{stock.productSku}</Td>
-                  <Td>{stock.productName}</Td>
-                  <Td>{stock.warehouseName}</Td>
-                  <Td numeric>{stock.quantity}</Td>
+                  <Td className="font-data">{getSku(stock.productId)}</Td>
+                  <Td>{getName(stock.productId)}</Td>
+                  <Td>{warehouseNameById.get(stock.warehouseId) ?? '—'}</Td>
+                  <Td numeric>{stock.systemQuantity}</Td>
                   <Td numeric>{stock.reservedQuantity}</Td>
                   <Td numeric className={stock.availableQuantity <= 0 ? styles.lowStock : undefined}>
                     {stock.availableQuantity}

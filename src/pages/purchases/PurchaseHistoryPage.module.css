@@ -3,9 +3,8 @@
   margin-bottom: 14px;
 }
 
-.search {
-  max-width: 320px;
-  flex: 1;
+.supplierSelect {
+  min-width: 260px;
 }
 
 .debt {

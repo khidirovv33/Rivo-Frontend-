@@ -4,18 +4,28 @@ import { usePermissions } from '@/auth/usePermissions';
 import * as transfersApi from '@/api/endpoints/transfers';
 import { extractErrorMessage } from '@/api/client';
 import { TransferStatus, type TransferDto } from '@/types/domain';
+import { useProductLookup } from '../_shared/useProductLookup';
 import { TRANSFER_STATUS_LABEL, TRANSFER_STATUS_TONE } from './labels';
 import formStyles from '../_shared/CrudForm.module.css';
 
 interface TransferDetailModalProps {
   transfer: TransferDto | null;
+  sourceWarehouseName: string | undefined;
+  destinationWarehouseName: string | undefined;
   onClose: () => void;
   onUpdated: (transfer: TransferDto) => void;
 }
 
-export function TransferDetailModal({ transfer, onClose, onUpdated }: TransferDetailModalProps) {
+export function TransferDetailModal({
+  transfer,
+  sourceWarehouseName,
+  destinationWarehouseName,
+  onClose,
+  onUpdated,
+}: TransferDetailModalProps) {
   const { has } = usePermissions();
   const queryClient = useQueryClient();
+  const { getName, getSku } = useProductLookup((transfer?.items ?? []).map((i) => i.productId));
 
   const onTransitionSuccess = (updated: TransferDto) => {
     queryClient.invalidateQueries({ queryKey: ['transfers'] });
@@ -30,8 +40,11 @@ export function TransferDetailModal({ transfer, onClose, onUpdated }: TransferDe
 
   if (!transfer) return null;
 
-  const canUpdate = has('Transfers.Update');
-  const canApprove = has('Transfers.Approve');
+  // Отдельных Transfers.* прав в каталоге нет — Inventory.Create покрывает обычные переходы,
+  // Inventory.Approve зарезервирован именно за шагом "Одобрить" (совпадает по смыслу с
+  // Inventory.Approve для ревизий — то же слово, тот же уровень допуска).
+  const canUpdate = has('Inventory.Create');
+  const canApprove = has('Inventory.Approve');
   const isBusy =
     submitMutation.isPending ||
     approveMutation.isPending ||
@@ -60,11 +73,11 @@ export function TransferDetailModal({ transfer, onClose, onUpdated }: TransferDe
           <tbody>
             <tr>
               <Td>Откуда</Td>
-              <Td>{transfer.fromWarehouseName}</Td>
+              <Td>{sourceWarehouseName ?? '—'}</Td>
             </tr>
             <tr>
               <Td>Куда</Td>
-              <Td>{transfer.toWarehouseName}</Td>
+              <Td>{destinationWarehouseName ?? '—'}</Td>
             </tr>
           </tbody>
         </Table>
@@ -80,10 +93,10 @@ export function TransferDetailModal({ transfer, onClose, onUpdated }: TransferDe
             {transfer.items.map((item) => (
               <tr key={item.id}>
                 <Td>
-                  {item.productName}
+                  {getName(item.productId)}
                   <br />
                   <span className="font-data" style={{ fontSize: 11, color: 'var(--ink-faint)' }}>
-                    {item.productSku}
+                    {getSku(item.productId)}
                   </span>
                 </Td>
                 <Td numeric>{item.quantity}</Td>

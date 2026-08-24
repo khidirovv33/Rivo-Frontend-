@@ -1,11 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, ErrorState, Loader, PageHeader, Table, Td, Th } from '@/components';
+import { Badge, Button, ErrorState, Loader, PageHeader, StatCard, Table, Td, Th } from '@/components';
+import { TrashIcon } from '@/components/icons';
 import { usePermissions } from '@/auth/usePermissions';
 import * as inventoriesApi from '@/api/endpoints/inventories';
+import * as warehousesApi from '@/api/endpoints/warehouses';
 import { extractErrorMessage } from '@/api/client';
-import { InventoryStatus } from '@/types/domain';
+import { formatMoney } from '@/lib/format';
+import { InventoryStatus, type ProductDto } from '@/types/domain';
+import { useProductLookup } from '../_shared/useProductLookup';
+import { ProductPicker } from '../_shared/ProductPicker';
 import { INVENTORY_STATUS_LABEL, INVENTORY_STATUS_TONE } from './labels';
 import styles from './InventoryDetailPage.module.css';
 import formStyles from '../_shared/CrudForm.module.css';
@@ -16,7 +21,8 @@ export function InventoryDetailPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const [actuals, setActuals] = useState<Record<string, string>>({});
+  const [pendingProduct, setPendingProduct] = useState<ProductDto | null>(null);
+  const [pendingQuantity, setPendingQuantity] = useState(1);
 
   const {
     data: inventory,
@@ -29,27 +35,45 @@ export function InventoryDetailPage() {
     enabled: Boolean(id),
   });
 
-  useEffect(() => {
-    if (!inventory) return;
-    const initial: Record<string, string> = {};
-    for (const item of inventory.items) {
-      initial[item.id] = item.actualQuantity === null ? '' : String(item.actualQuantity);
-    }
-    setActuals(initial);
-  }, [inventory]);
-
-  const saveItemMutation = useMutation({
-    mutationFn: ({ itemId, quantity }: { itemId: string; quantity: number }) =>
-      inventoriesApi.updateInventoryItem(id!, itemId, { actualQuantity: quantity }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['inventory', id] }),
+  const { data: warehouse } = useQuery({
+    queryKey: ['warehouse', inventory?.warehouseId],
+    queryFn: () => warehousesApi.getWarehouse(inventory!.warehouseId),
+    enabled: Boolean(inventory),
   });
 
-  const confirmMutation = useMutation({
-    mutationFn: () => inventoriesApi.confirmInventory(id!),
+  const { getName, getSku } = useProductLookup((inventory?.items ?? []).map((i) => i.productId));
+
+  const invalidateInventory = () => queryClient.invalidateQueries({ queryKey: ['inventory', id] });
+
+  const scanMutation = useMutation({
+    mutationFn: (vars: { productId: string; actualQuantity: number }) =>
+      inventoriesApi.scanInventoryItem(id!, vars),
+    onSuccess: () => {
+      invalidateInventory();
+      setPendingProduct(null);
+      setPendingQuantity(1);
+    },
+  });
+
+  const removeItemMutation = useMutation({
+    mutationFn: (itemId: string) => inventoriesApi.removeInventoryItem(id!, itemId),
+    onSuccess: invalidateInventory,
+  });
+
+  const completeMutation = useMutation({
+    mutationFn: () => inventoriesApi.completeInventory(id!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['inventories'] });
-      queryClient.invalidateQueries({ queryKey: ['inventory', id] });
+      invalidateInventory();
+    },
+  });
+
+  const approveMutation = useMutation({
+    mutationFn: () => inventoriesApi.approveInventory(id!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['inventories'] });
       queryClient.invalidateQueries({ queryKey: ['stock'] });
+      invalidateInventory();
     },
   });
 
@@ -66,28 +90,49 @@ export function InventoryDetailPage() {
 
   const canApprove = has('Inventory.Approve');
   const canEdit = inventory.status === InventoryStatus.InProgress && has('Inventory.Create');
-  const isBusy = confirmMutation.isPending || cancelMutation.isPending;
-
-  function commitItem(itemId: string) {
-    const raw = actuals[itemId];
-    const quantity = raw === '' ? null : Number(raw);
-    if (quantity === null || Number.isNaN(quantity)) return;
-    const original = inventory!.items.find((i) => i.id === itemId)?.actualQuantity ?? null;
-    if (quantity === original) return;
-    saveItemMutation.mutate({ itemId, quantity });
-  }
+  const isBusy = completeMutation.isPending || approveMutation.isPending || cancelMutation.isPending;
+  const mutationError = completeMutation.error ?? approveMutation.error ?? cancelMutation.error ?? scanMutation.error;
 
   return (
     <div>
-      <PageHeader title={`Ревизия — ${inventory.warehouseName}`} />
+      <PageHeader title={`Ревизия ${inventory.inventoryNumber}`} subtitle={warehouse?.name} />
 
       <div className={styles.summary}>
         <Badge tone={INVENTORY_STATUS_TONE[inventory.status]}>{INVENTORY_STATUS_LABEL[inventory.status]}</Badge>
       </div>
 
-      {(confirmMutation.error || cancelMutation.error) && (
-        <div className={formStyles.error}>
-          {extractErrorMessage(confirmMutation.error ?? cancelMutation.error)}
+      <div className={styles.statRow}>
+        <StatCard label="Недостача, шт" value={String(inventory.shortageQuantity)} />
+        <StatCard label="Излишек, шт" value={String(inventory.surplusQuantity)} />
+        <StatCard label="Недостача, сумма" value={formatMoney(inventory.shortageCost)} />
+        <StatCard label="Излишек, сумма" value={formatMoney(inventory.surplusCost)} />
+      </div>
+
+      {mutationError && <div className={formStyles.error}>{extractErrorMessage(mutationError)}</div>}
+
+      {canEdit && (
+        <div className={styles.scanRow}>
+          <div className={styles.scanPicker}>
+            <ProductPicker onPick={setPendingProduct} placeholder="Сканируйте штрихкод или введите название/SKU…" />
+          </div>
+          {pendingProduct && (
+            <>
+              <input
+                className={styles.actualInput}
+                type="number"
+                min={0}
+                value={pendingQuantity}
+                onChange={(e) => setPendingQuantity(Math.max(0, Number(e.target.value) || 0))}
+              />
+              <Button
+                variant="primary"
+                disabled={scanMutation.isPending}
+                onClick={() => scanMutation.mutate({ productId: pendingProduct.id, actualQuantity: pendingQuantity })}
+              >
+                {scanMutation.isPending ? 'Сохраняем…' : `Внести: ${pendingProduct.name}`}
+              </Button>
+            </>
+          )}
         </div>
       )}
 
@@ -98,46 +143,40 @@ export function InventoryDetailPage() {
             <Th>Системный остаток</Th>
             <Th>Факт</Th>
             <Th>Разница</Th>
+            {canEdit && <Th />}
           </tr>
         </thead>
         <tbody>
-          {inventory.items.map((item) => {
-            const rawValue = actuals[item.id] ?? '';
-            const actual = rawValue === '' ? null : Number(rawValue);
-            const difference = actual === null || Number.isNaN(actual) ? null : actual - item.systemQuantity;
-            return (
-              <tr key={item.id}>
+          {inventory.items.map((item) => (
+            <tr key={item.id}>
+              <Td>
+                {getName(item.productId)}
+                <br />
+                <span className="font-data" style={{ fontSize: 11, color: 'var(--ink-faint)' }}>
+                  {getSku(item.productId)}
+                </span>
+              </Td>
+              <Td numeric>{item.systemQuantity}</Td>
+              <Td numeric>{item.actualQuantity}</Td>
+              <Td numeric>
+                <Badge tone={item.difference === 0 ? 'good' : item.difference < 0 ? 'critical' : 'warn'}>
+                  {item.difference > 0 ? `+${item.difference}` : item.difference}
+                </Badge>
+              </Td>
+              {canEdit && (
                 <Td>
-                  {item.productName}
-                  <br />
-                  <span className="font-data" style={{ fontSize: 11, color: 'var(--ink-faint)' }}>
-                    {item.productSku}
-                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeItemMutation.mutate(item.id)}
+                    aria-label="Убрать позицию"
+                  >
+                    <TrashIcon width={15} height={15} />
+                  </Button>
                 </Td>
-                <Td numeric>{item.systemQuantity}</Td>
-                <Td>
-                  <input
-                    className={styles.actualInput}
-                    type="number"
-                    min={0}
-                    disabled={!canEdit}
-                    value={rawValue}
-                    onChange={(e) => setActuals((prev) => ({ ...prev, [item.id]: e.target.value }))}
-                    onBlur={() => commitItem(item.id)}
-                  />
-                </Td>
-                <Td numeric>
-                  {difference === null ? (
-                    '—'
-                  ) : (
-                    <Badge tone={difference === 0 ? 'good' : difference < 0 ? 'critical' : 'warn'}>
-                      {difference > 0 ? `+${difference}` : difference}
-                    </Badge>
-                  )}
-                </Td>
-              </tr>
-            );
-          })}
+              )}
+            </tr>
+          ))}
         </tbody>
       </Table>
 
@@ -145,14 +184,19 @@ export function InventoryDetailPage() {
         <Button variant="ghost" onClick={() => navigate('/inventory')}>
           К списку
         </Button>
-        {inventory.status === InventoryStatus.InProgress && canEdit && (
+        {canEdit && (
           <Button variant="danger" onClick={() => cancelMutation.mutate()} disabled={isBusy}>
             Отменить ревизию
           </Button>
         )}
-        {inventory.status === InventoryStatus.InProgress && canApprove && (
-          <Button variant="primary" onClick={() => confirmMutation.mutate()} disabled={isBusy}>
-            {confirmMutation.isPending ? 'Подтверждаем…' : 'Подтвердить ревизию'}
+        {canEdit && (
+          <Button variant="primary" onClick={() => completeMutation.mutate()} disabled={isBusy}>
+            {completeMutation.isPending ? 'Завершаем…' : 'Завершить подсчёт'}
+          </Button>
+        )}
+        {inventory.status === InventoryStatus.Completed && canApprove && (
+          <Button variant="primary" onClick={() => approveMutation.mutate()} disabled={isBusy}>
+            {approveMutation.isPending ? 'Подтверждаем…' : 'Подтвердить ревизию'}
           </Button>
         )}
       </div>

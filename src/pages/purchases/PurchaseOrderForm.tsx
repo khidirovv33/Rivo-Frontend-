@@ -18,7 +18,7 @@ interface DraftItem {
   productName: string;
   productSku: string;
   quantity: number;
-  unitPrice: number;
+  unitCost: number;
 }
 
 export interface PurchaseOrderSubmitValues extends PurchaseOrderHeaderValues {
@@ -26,22 +26,22 @@ export interface PurchaseOrderSubmitValues extends PurchaseOrderHeaderValues {
 }
 
 interface PurchaseOrderFormProps {
-  branchId: string | undefined;
+  storeId: string | undefined;
   onSubmit: (values: PurchaseOrderSubmitValues) => void;
   onCancel: () => void;
   isSaving: boolean;
   serverError: string | null;
 }
 
-export function PurchaseOrderForm({ branchId, onSubmit, onCancel, isSaving, serverError }: PurchaseOrderFormProps) {
+export function PurchaseOrderForm({ storeId, onSubmit, onCancel, isSaving, serverError }: PurchaseOrderFormProps) {
   const [items, setItems] = useState<DraftItem[]>([]);
   const [itemsError, setItemsError] = useState<string | null>(null);
 
   const { data: suppliers = [] } = useQuery({ queryKey: ['suppliers-all'], queryFn: suppliersApi.listAllSuppliers });
   const { data: warehouses = [] } = useQuery({
-    queryKey: ['warehouses', branchId],
-    queryFn: () => warehousesApi.listAllWarehouses(branchId),
-    enabled: Boolean(branchId),
+    queryKey: ['warehouses', storeId],
+    queryFn: () => warehousesApi.listAllWarehouses(storeId),
+    enabled: Boolean(storeId),
   });
 
   const {
@@ -56,7 +56,7 @@ export function PurchaseOrderForm({ branchId, onSubmit, onCancel, isSaving, serv
   function addProduct(product: ProductDto) {
     setItems((prev) => {
       if (prev.some((i) => i.productId === product.id)) return prev;
-      return [...prev, { productId: product.id, productName: product.name, productSku: product.sku, quantity: 1, unitPrice: product.purchasePrice }];
+      return [...prev, { productId: product.id, productName: product.name, productSku: product.sku, quantity: 1, unitCost: product.purchasePrice }];
     });
     setItemsError(null);
   }
@@ -69,7 +69,7 @@ export function PurchaseOrderForm({ branchId, onSubmit, onCancel, isSaving, serv
     setItems((prev) => prev.filter((i) => i.productId !== productId));
   }
 
-  const total = items.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0);
+  const total = items.reduce((sum, i) => sum + i.quantity * i.unitCost, 0);
 
   function submit(values: PurchaseOrderHeaderValues) {
     if (items.length === 0) {
@@ -145,11 +145,11 @@ export function PurchaseOrderForm({ branchId, onSubmit, onCancel, isSaving, serv
                       type="number"
                       min={0}
                       step="0.01"
-                      value={item.unitPrice}
-                      onChange={(e) => updateItem(item.productId, { unitPrice: Math.max(0, Number(e.target.value) || 0) })}
+                      value={item.unitCost}
+                      onChange={(e) => updateItem(item.productId, { unitCost: Math.max(0, Number(e.target.value) || 0) })}
                     />
                   </Td>
-                  <Td numeric>{formatMoney(item.quantity * item.unitPrice)}</Td>
+                  <Td numeric>{formatMoney(item.quantity * item.unitCost)}</Td>
                   <Td>
                     <Button variant="ghost" size="sm" onClick={() => removeItem(item.productId)} aria-label="Убрать">
                       <TrashIcon width={15} height={15} />

@@ -4,6 +4,7 @@ import styles from '../products/CatalogTabs.module.css';
 const TABS = [
   { to: '/warehouse', label: 'Остатки', end: true },
   { to: '/warehouse/movements', label: 'История движений', end: false },
+  { to: '/warehouse/list', label: 'Склады', end: false },
 ];
 
 export function WarehouseTabs() {

@@ -2,8 +2,9 @@ import { apiClient } from '../client';
 import type { ApiResponse, PagedRequest, PaginatedList } from '../types';
 import type { CreateTransferRequest, TransferDto } from '@/types/domain';
 
+// GET /api/transfers принимает только warehouseId как доп. фильтр (сверено по Swagger) — не status.
 export interface TransferQuery extends PagedRequest {
-  status?: number;
+  warehouseId?: string;
 }
 
 export async function listTransfers(params: TransferQuery): Promise<PaginatedList<TransferDto>> {

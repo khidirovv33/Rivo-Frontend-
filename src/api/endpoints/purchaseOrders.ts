@@ -4,7 +4,6 @@ import type { CreatePurchaseOrderRequest, PurchaseOrderDto } from '@/types/domai
 
 export interface PurchaseOrderQuery extends PagedRequest {
   supplierId?: string;
-  status?: number;
 }
 
 export async function listPurchaseOrders(params: PurchaseOrderQuery): Promise<PaginatedList<PurchaseOrderDto>> {
@@ -24,6 +23,11 @@ export async function createPurchaseOrder(payload: CreatePurchaseOrderRequest): 
 
 export async function sendPurchaseOrder(id: string): Promise<PurchaseOrderDto> {
   const { data } = await apiClient.post<ApiResponse<PurchaseOrderDto>>(`/purchase-orders/${id}/send`);
+  return data.data!;
+}
+
+export async function confirmPurchaseOrder(id: string): Promise<PurchaseOrderDto> {
+  const { data } = await apiClient.post<ApiResponse<PurchaseOrderDto>>(`/purchase-orders/${id}/confirm`);
   return data.data!;
 }
 

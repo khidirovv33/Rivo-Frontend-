@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Badge, Button, EmptyState, ErrorState, Loader, Modal, PageHeader, Pagination, Table, Td, Th } from '@/components';
 import { PlusIcon } from '@/components/icons';
 import { usePermissions } from '@/auth/usePermissions';
 import * as inventoriesApi from '@/api/endpoints/inventories';
+import * as warehousesApi from '@/api/endpoints/warehouses';
 import { extractErrorMessage } from '@/api/client';
 import { formatDateTime } from '@/lib/format';
 import { InventoryStartForm } from './InventoryStartForm';
@@ -19,6 +20,9 @@ export function InventoryPage() {
 
   const [pageNumber, setPageNumber] = useState(1);
   const [creating, setCreating] = useState(false);
+
+  const { data: warehouses = [] } = useQuery({ queryKey: ['warehouses-all'], queryFn: () => warehousesApi.listAllWarehouses() });
+  const warehouseNameById = useMemo(() => new Map(warehouses.map((w) => [w.id, w.name])), [warehouses]);
 
   const {
     data: page,
@@ -65,6 +69,7 @@ export function InventoryPage() {
           <Table>
             <thead>
               <tr>
+                <Th>Номер</Th>
                 <Th>Склад</Th>
                 <Th>Начата</Th>
                 <Th>Завершена</Th>
@@ -75,8 +80,9 @@ export function InventoryPage() {
             <tbody>
               {page.items.map((inventory) => (
                 <tr key={inventory.id}>
-                  <Td>{inventory.warehouseName}</Td>
-                  <Td className="font-data">{formatDateTime(inventory.createdAt)}</Td>
+                  <Td className="font-data">{inventory.inventoryNumber}</Td>
+                  <Td>{warehouseNameById.get(inventory.warehouseId) ?? '—'}</Td>
+                  <Td className="font-data">{formatDateTime(inventory.startedAt)}</Td>
                   <Td className="font-data">{inventory.completedAt ? formatDateTime(inventory.completedAt) : '—'}</Td>
                   <Td>
                     <Badge tone={INVENTORY_STATUS_TONE[inventory.status]}>

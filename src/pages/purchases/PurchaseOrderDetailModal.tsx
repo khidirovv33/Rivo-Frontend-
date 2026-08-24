@@ -5,22 +5,41 @@ import * as purchaseOrdersApi from '@/api/endpoints/purchaseOrders';
 import { extractErrorMessage } from '@/api/client';
 import { formatDate, formatMoney } from '@/lib/format';
 import { PurchaseOrderStatus, type PurchaseOrderDto } from '@/types/domain';
+import { useProductLookup } from '../_shared/useProductLookup';
 import { PURCHASE_ORDER_STATUS_LABEL, PURCHASE_ORDER_STATUS_TONE } from './labels';
 import formStyles from '../_shared/CrudForm.module.css';
 
 interface PurchaseOrderDetailModalProps {
   order: PurchaseOrderDto | null;
+  supplierName: string | undefined;
+  warehouseName: string | undefined;
   onClose: () => void;
   onReceive: (order: PurchaseOrderDto) => void;
   onUpdated: (order: PurchaseOrderDto) => void;
 }
 
-export function PurchaseOrderDetailModal({ order, onClose, onReceive, onUpdated }: PurchaseOrderDetailModalProps) {
+export function PurchaseOrderDetailModal({
+  order,
+  supplierName,
+  warehouseName,
+  onClose,
+  onReceive,
+  onUpdated,
+}: PurchaseOrderDetailModalProps) {
   const { has } = usePermissions();
   const queryClient = useQueryClient();
+  const { getName, getSku } = useProductLookup((order?.items ?? []).map((i) => i.productId));
 
   const sendMutation = useMutation({
     mutationFn: (id: string) => purchaseOrdersApi.sendPurchaseOrder(id),
+    onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
+      onUpdated(updated);
+    },
+  });
+
+  const confirmMutation = useMutation({
+    mutationFn: (id: string) => purchaseOrdersApi.confirmPurchaseOrder(id),
     onSuccess: (updated) => {
       queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
       onUpdated(updated);
@@ -37,9 +56,9 @@ export function PurchaseOrderDetailModal({ order, onClose, onReceive, onUpdated 
 
   if (!order) return null;
 
-  const canUpdate = has('Purchases.Update');
-  const canReceive = has('Purchases.Receive') || canUpdate;
-  const mutationError = sendMutation.error ?? cancelMutation.error;
+  // Отдельного Purchases.* права в каталоге нет — зона гейтится Inventory.Read/Create/Approve.
+  const canUpdate = has('Inventory.Create');
+  const mutationError = sendMutation.error ?? confirmMutation.error ?? cancelMutation.error;
 
   return (
     <Modal open={Boolean(order)} onClose={onClose} title={`Заказ ${order.orderNumber}`}>
@@ -54,15 +73,15 @@ export function PurchaseOrderDetailModal({ order, onClose, onReceive, onUpdated 
           <tbody>
             <tr>
               <Td>Поставщик</Td>
-              <Td>{order.supplierName}</Td>
+              <Td>{supplierName ?? '—'}</Td>
             </tr>
             <tr>
               <Td>Склад</Td>
-              <Td>{order.warehouseName}</Td>
+              <Td>{warehouseName ?? '—'}</Td>
             </tr>
             <tr>
               <Td>Дата создания</Td>
-              <Td className="font-data">{formatDate(order.createdAt)}</Td>
+              <Td className="font-data">{formatDate(order.orderDate)}</Td>
             </tr>
             {order.expectedDate && (
               <tr>
@@ -73,16 +92,6 @@ export function PurchaseOrderDetailModal({ order, onClose, onReceive, onUpdated 
             <tr>
               <Td>Сумма заказа</Td>
               <Td numeric>{formatMoney(order.totalAmount)}</Td>
-            </tr>
-            <tr>
-              <Td>Оплачено</Td>
-              <Td numeric>{formatMoney(order.paidAmount)}</Td>
-            </tr>
-            <tr>
-              <Td>Задолженность</Td>
-              <Td numeric>
-                <Badge tone={order.debtAmount > 0 ? 'critical' : 'good'}>{formatMoney(order.debtAmount)}</Badge>
-              </Td>
             </tr>
           </tbody>
         </Table>
@@ -98,26 +107,27 @@ export function PurchaseOrderDetailModal({ order, onClose, onReceive, onUpdated 
             </tr>
           </thead>
           <tbody>
-            {order.items.map((item) => {
-              const remaining = item.quantityOrdered - item.quantityReceived;
-              return (
-                <tr key={item.id}>
-                  <Td>
-                    {item.productName}
-                    <br />
-                    <span className="font-data" style={{ fontSize: 11, color: 'var(--ink-faint)' }}>
-                      {item.productSku}
-                    </span>
-                  </Td>
-                  <Td numeric>{item.quantityOrdered}</Td>
-                  <Td numeric>{item.quantityReceived}</Td>
-                  <Td numeric>
-                    {remaining > 0 ? <Badge tone="warn">{remaining}</Badge> : <Badge tone="good">0</Badge>}
-                  </Td>
-                  <Td numeric>{formatMoney(item.unitPrice)}</Td>
-                </tr>
-              );
-            })}
+            {order.items.map((item) => (
+              <tr key={item.id}>
+                <Td>
+                  {getName(item.productId)}
+                  <br />
+                  <span className="font-data" style={{ fontSize: 11, color: 'var(--ink-faint)' }}>
+                    {getSku(item.productId)}
+                  </span>
+                </Td>
+                <Td numeric>{item.quantity}</Td>
+                <Td numeric>{item.receivedQuantity}</Td>
+                <Td numeric>
+                  {item.remainingQuantity > 0 ? (
+                    <Badge tone="warn">{item.remainingQuantity}</Badge>
+                  ) : (
+                    <Badge tone="good">0</Badge>
+                  )}
+                </Td>
+                <Td numeric>{formatMoney(item.unitCost)}</Td>
+              </tr>
+            ))}
           </tbody>
         </Table>
 
@@ -132,14 +142,24 @@ export function PurchaseOrderDetailModal({ order, onClose, onReceive, onUpdated 
               </Button>
             </>
           )}
-          {(order.status === PurchaseOrderStatus.Sent || order.status === PurchaseOrderStatus.PartiallyReceived) && (
+          {order.status === PurchaseOrderStatus.Sent && canUpdate && (
+            <>
+              <Button variant="danger" onClick={() => cancelMutation.mutate(order.id)} disabled={cancelMutation.isPending}>
+                Отменить
+              </Button>
+              <Button variant="primary" onClick={() => confirmMutation.mutate(order.id)} disabled={confirmMutation.isPending}>
+                {confirmMutation.isPending ? 'Подтверждаем…' : 'Подтвердить'}
+              </Button>
+            </>
+          )}
+          {(order.status === PurchaseOrderStatus.Confirmed || order.status === PurchaseOrderStatus.PartiallyReceived) && (
             <>
               {canUpdate && (
                 <Button variant="danger" onClick={() => cancelMutation.mutate(order.id)} disabled={cancelMutation.isPending}>
                   Отменить
                 </Button>
               )}
-              {canReceive && (
+              {canUpdate && (
                 <Button variant="primary" onClick={() => onReceive(order)}>
                   Оприходовать
                 </Button>

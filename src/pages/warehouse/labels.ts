@@ -8,6 +8,7 @@ export const STOCK_MOVEMENT_TYPE_LABEL: Record<number, string> = {
   [StockMovementType.WriteOff]: 'Списание',
   [StockMovementType.Adjustment]: 'Корректировка',
   [StockMovementType.Reservation]: 'Резервирование',
+  [StockMovementType.Transfer]: 'Перемещение',
 };
 
 export const STOCK_MOVEMENT_TYPE_TONE: Record<number, 'good' | 'warn' | 'critical' | 'neutral'> = {
@@ -18,4 +19,5 @@ export const STOCK_MOVEMENT_TYPE_TONE: Record<number, 'good' | 'warn' | 'critica
   [StockMovementType.WriteOff]: 'critical',
   [StockMovementType.Adjustment]: 'neutral',
   [StockMovementType.Reservation]: 'warn',
+  [StockMovementType.Transfer]: 'neutral',
 };

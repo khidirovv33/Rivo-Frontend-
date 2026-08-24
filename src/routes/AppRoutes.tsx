@@ -21,9 +21,11 @@ import { RolesPage } from '@/pages/roles/RolesPage';
 import { ProfilePage } from '@/pages/profile/ProfilePage';
 import { WarehousePage } from '@/pages/warehouse/WarehousePage';
 import { WarehouseMovementsPage } from '@/pages/warehouse/WarehouseMovementsPage';
+import { WarehouseManagePage } from '@/pages/warehouse/WarehouseManagePage';
 import { SuppliersPage } from '@/pages/suppliers/SuppliersPage';
 import { PurchasesPage } from '@/pages/purchases/PurchasesPage';
 import { ReceivingPage } from '@/pages/purchases/ReceivingPage';
+import { PurchaseHistoryPage } from '@/pages/purchases/PurchaseHistoryPage';
 import { TransfersPage } from '@/pages/transfers/TransfersPage';
 import { InventoryPage } from '@/pages/inventory/InventoryPage';
 import { InventoryDetailPage } from '@/pages/inventory/InventoryDetailPage';
@@ -63,9 +65,11 @@ export function AppRoutes() {
         <Route path="/customers/loyalty-levels" element={<LoyaltyLevelsPage />} />
         <Route path="/warehouse" element={<WarehousePage />} />
         <Route path="/warehouse/movements" element={<WarehouseMovementsPage />} />
+        <Route path="/warehouse/list" element={<WarehouseManagePage />} />
         <Route path="/suppliers" element={<SuppliersPage />} />
         <Route path="/purchases" element={<PurchasesPage />} />
         <Route path="/purchases/receiving" element={<ReceivingPage />} />
+        <Route path="/purchases/history" element={<PurchaseHistoryPage />} />
         <Route path="/transfers" element={<TransfersPage />} />
         <Route path="/inventory" element={<InventoryPage />} />
         <Route path="/inventory/:id" element={<InventoryDetailPage />} />

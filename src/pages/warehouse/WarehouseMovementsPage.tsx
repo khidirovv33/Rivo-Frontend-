@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Badge, EmptyState, ErrorState, Loader, PageHeader, Pagination, Select, Table, Td, Th } from '@/components';
 import * as stockMovementsApi from '@/api/endpoints/stockMovements';
 import * as warehousesApi from '@/api/endpoints/warehouses';
 import { useStoreBranch } from '@/store-context/useStoreBranch';
 import { formatDateTime } from '@/lib/format';
-import { StockMovementType } from '@/types/domain';
+import { useProductLookup } from '../_shared/useProductLookup';
 import { STOCK_MOVEMENT_TYPE_LABEL, STOCK_MOVEMENT_TYPE_TONE } from './labels';
 import { WarehouseTabs } from './WarehouseTabs';
 import styles from './WarehousePage.module.css';
@@ -13,7 +13,7 @@ import styles from './WarehousePage.module.css';
 const PAGE_SIZE = 20;
 
 export function WarehouseMovementsPage() {
-  const { currentBranch } = useStoreBranch();
+  const { currentStore } = useStoreBranch();
 
   const [pageNumber, setPageNumber] = useState(1);
   const [warehouseId, setWarehouseId] = useState('');
@@ -21,13 +21,14 @@ export function WarehouseMovementsPage() {
 
   useEffect(() => {
     setPageNumber(1);
-  }, [warehouseId, type]);
+  }, [warehouseId]);
 
   const { data: warehouses = [] } = useQuery({
-    queryKey: ['warehouses', currentBranch?.id],
-    queryFn: () => warehousesApi.listAllWarehouses(currentBranch!.id),
-    enabled: Boolean(currentBranch),
+    queryKey: ['warehouses', currentStore?.id],
+    queryFn: () => warehousesApi.listAllWarehouses(currentStore!.id),
+    enabled: Boolean(currentStore),
   });
+  const warehouseNameById = useMemo(() => new Map(warehouses.map((w) => [w.id, w.name])), [warehouses]);
 
   const {
     data: page,
@@ -35,15 +36,20 @@ export function WarehouseMovementsPage() {
     isError,
     refetch,
   } = useQuery({
-    queryKey: ['stock-movements', warehouseId, type, pageNumber],
+    queryKey: ['stock-movements', warehouseId, pageNumber],
     queryFn: () =>
       stockMovementsApi.listStockMovements({
         pageNumber,
         pageSize: PAGE_SIZE,
         warehouseId: warehouseId || undefined,
-        type: type ? (Number(type) as (typeof StockMovementType)[keyof typeof StockMovementType]) : undefined,
       }),
   });
+
+  // GET /api/stock-movements не поддерживает фильтр по типу на бэкенде — фильтруем только
+  // внутри уже загруженной страницы (пагинация/totalCount при этом считаются без фильтра).
+  const visibleItems = (page?.items ?? []).filter((m) => !type || String(m.type) === type);
+
+  const { getName } = useProductLookup(visibleItems.map((m) => m.productId));
 
   return (
     <div>
@@ -62,7 +68,7 @@ export function WarehouseMovementsPage() {
           </Select>
         </div>
         <div className={styles.warehouseSelect}>
-          <Select label="Тип операции" value={type} onChange={(e) => setType(e.target.value)}>
+          <Select label="Тип операции (на этой странице)" value={type} onChange={(e) => setType(e.target.value)}>
             <option value="">Все типы</option>
             {Object.entries(STOCK_MOVEMENT_TYPE_LABEL).map(([value, label]) => (
               <option key={value} value={value}>
@@ -75,11 +81,9 @@ export function WarehouseMovementsPage() {
 
       {isLoading && <Loader />}
       {isError && <ErrorState onRetry={() => refetch()} />}
-      {!isLoading && !isError && page && page.items.length === 0 && (
-        <EmptyState message="Операций пока нет." />
-      )}
+      {!isLoading && !isError && visibleItems.length === 0 && <EmptyState message="Операций пока нет." />}
 
-      {!isLoading && !isError && page && page.items.length > 0 && (
+      {!isLoading && !isError && page && visibleItems.length > 0 && (
         <>
           <Table>
             <thead>
@@ -94,11 +98,11 @@ export function WarehouseMovementsPage() {
               </tr>
             </thead>
             <tbody>
-              {page.items.map((m) => (
+              {visibleItems.map((m) => (
                 <tr key={m.id}>
                   <Td className="font-data">{formatDateTime(m.createdAt)}</Td>
-                  <Td>{m.warehouseName}</Td>
-                  <Td>{m.productName}</Td>
+                  <Td>{warehouseNameById.get(m.warehouseId) ?? '—'}</Td>
+                  <Td>{getName(m.productId)}</Td>
                   <Td>
                     <Badge tone={STOCK_MOVEMENT_TYPE_TONE[m.type]}>{STOCK_MOVEMENT_TYPE_LABEL[m.type]}</Badge>
                   </Td>
@@ -106,7 +110,7 @@ export function WarehouseMovementsPage() {
                   <Td numeric className="font-data">
                     {m.quantityBefore} → {m.quantityAfter}
                   </Td>
-                  <Td>{m.note ?? '—'}</Td>
+                  <Td>{m.reason ?? '—'}</Td>
                 </tr>
               ))}
             </tbody>

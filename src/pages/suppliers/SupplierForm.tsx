@@ -1,9 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Select, TextField } from '@/components';
-import { supplierSchema, type SupplierFormInput, type SupplierFormValues } from '@/lib/validation/inventory';
-import { SupplierStatus, type SupplierDto } from '@/types/domain';
-import { SUPPLIER_STATUS_LABEL } from './labels';
+import { Button, TextField } from '@/components';
+import { supplierSchema, type SupplierFormValues } from '@/lib/validation/inventory';
+import type { SupplierDto } from '@/types/domain';
 import styles from '../_shared/CrudForm.module.css';
 
 interface SupplierFormProps {
@@ -19,7 +18,7 @@ export function SupplierForm({ supplier, onSubmit, onCancel, isSaving, serverErr
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SupplierFormInput, unknown, SupplierFormValues>({
+  } = useForm<SupplierFormValues>({
     resolver: zodResolver(supplierSchema),
     defaultValues: {
       name: supplier?.name ?? '',
@@ -27,7 +26,8 @@ export function SupplierForm({ supplier, onSubmit, onCancel, isSaving, serverErr
       phone: supplier?.phone ?? '',
       email: supplier?.email ?? '',
       address: supplier?.address ?? '',
-      status: supplier?.status ?? SupplierStatus.Active,
+      notes: supplier?.notes ?? '',
+      isActive: supplier?.isActive ?? true,
     },
   });
 
@@ -39,14 +39,12 @@ export function SupplierForm({ supplier, onSubmit, onCancel, isSaving, serverErr
       <TextField label="Телефон (необязательно)" error={errors.phone?.message} {...register('phone')} />
       <TextField label="Email (необязательно)" type="email" error={errors.email?.message} {...register('email')} />
       <TextField label="Адрес (необязательно)" error={errors.address?.message} {...register('address')} />
+      <TextField label="Заметки (необязательно)" error={errors.notes?.message} {...register('notes')} />
       {supplier && (
-        <Select label="Статус" error={errors.status?.message} {...register('status')}>
-          {Object.entries(SUPPLIER_STATUS_LABEL).map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </Select>
+        <label className={styles.checkboxRow}>
+          <input type="checkbox" {...register('isActive')} />
+          Активен
+        </label>
       )}
       <div className={styles.formActions}>
         <Button type="button" variant="ghost" onClick={onCancel}>
