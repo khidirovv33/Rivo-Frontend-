@@ -12,11 +12,11 @@
 
 .name {
   flex: 1;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .available {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--ink-faint);
 }
 

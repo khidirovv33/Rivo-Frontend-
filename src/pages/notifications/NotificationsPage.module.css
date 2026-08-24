@@ -45,19 +45,19 @@
 }
 
 .title {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
 }
 
 .time {
   font-family: var(--font-data);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--ink-faint);
   flex-shrink: 0;
 }
 
 .message {
-  font-size: 12.5px;
+  font-size: 14.5px;
   color: var(--ink-muted);
   line-height: 1.5;
 }

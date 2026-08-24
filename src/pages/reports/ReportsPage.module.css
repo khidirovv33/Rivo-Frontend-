@@ -32,12 +32,12 @@
 }
 
 .cardTitle {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
 }
 
 .cardDescription {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--ink-muted);
   line-height: 1.5;
 }
@@ -67,7 +67,7 @@
 }
 
 .exportNote {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--ink-muted);
   margin-top: 8px;
 }

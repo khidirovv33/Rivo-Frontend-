@@ -65,7 +65,7 @@ export function AuditLogPage() {
                 <Td>
                   {entry.entityType}
                   <br />
-                  <span className="font-data" style={{ fontSize: 11, color: 'var(--ink-faint)' }}>
+                  <span className="font-data" style={{ fontSize: 13, color: 'var(--ink-faint)' }}>
                     {entry.entityId}
                   </span>
                 </Td>

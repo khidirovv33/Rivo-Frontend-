@@ -14,7 +14,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--ink-muted);
 }
 
@@ -57,12 +57,12 @@
 .endLabel {
   fill: var(--accent);
   font-family: var(--font-data);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
 }
 
 .axisLabel {
   fill: var(--ink-faint);
   font-family: var(--font-data);
-  font-size: 10px;
+  font-size: 12px;
 }

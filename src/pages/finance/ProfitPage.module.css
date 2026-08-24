@@ -16,7 +16,7 @@
   justify-content: space-between;
   padding: 9px 0;
   border-bottom: 1px dashed var(--rule);
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .row:last-child {
@@ -44,13 +44,13 @@
 }
 
 .final {
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 700;
   color: var(--accent);
   padding-top: 12px;
 }
 
 .chartTitle {
-  font-size: 15px;
+  font-size: 17px;
   margin-bottom: 12px;
 }

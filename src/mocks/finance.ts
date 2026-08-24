@@ -28,7 +28,7 @@ const entries: FinanceEntryDto[] = [
   { id: 'fe-4', kind: 2, date: '2026-08-17', amount: 850_000, category: 'Зарплата', accountId: 'acc-bank', accountName: 'Расчётный счёт', description: 'Аванс — кассир' },
   { id: 'fe-5', kind: 2, date: '2026-08-16', amount: 320_000, category: 'Коммунальные услуги', accountId: 'acc-cash', accountName: 'Касса магазина', description: 'Электричество' },
   { id: 'fe-6', kind: 1, date: '2026-08-16', amount: 5_230_000, category: 'Продажи', accountId: 'acc-cash', accountName: 'Касса магазина', description: 'Выручка за день' },
-  { id: 'fe-7', kind: 2, date: '2026-08-15', amount: 1_100_000, category: 'Закупка товара', accountId: 'acc-bank', accountName: 'Расчётный счёт', description: 'Поставщик «Nestle Uzbekistan»' },
+  { id: 'fe-7', kind: 2, date: '2026-08-15', amount: 1_100_000, category: 'Закупка товара', accountId: 'acc-bank', accountName: 'Расчётный счёт', description: 'Поставщик «Nestle Tajikistan»' },
   { id: 'fe-8', kind: 2, date: '2026-08-14', amount: 180_000, category: 'Прочее', accountId: 'acc-cash', accountName: 'Касса магазина', description: 'Хознужды' },
 ];
 

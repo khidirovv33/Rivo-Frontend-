@@ -724,3 +724,18 @@ export interface ScanInventoryItemRequest {
   actualQuantity: number;
   unitCost?: number;
 }
+
+// ---- AI-помощник (проксирует чат к OpenAI на бэкенде — ключ туда не долетает) ----
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface AskAssistantRequest {
+  messages: ChatMessage[];
+}
+
+export interface AssistantReply {
+  reply: string;
+}

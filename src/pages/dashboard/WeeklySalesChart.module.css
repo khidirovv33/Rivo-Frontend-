@@ -22,14 +22,14 @@
 
 .dayLabel {
   font-family: var(--font-data);
-  font-size: 11px;
+  font-size: 13px;
   fill: var(--ink-faint);
 }
 
 .peakLabel {
   font-family: var(--font-data);
   font-variant-numeric: tabular-nums;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   fill: var(--ink);
 }

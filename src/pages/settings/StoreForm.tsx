@@ -27,7 +27,7 @@ export function StoreForm({ store, onSubmit, onCancel, isSaving, serverError }: 
       address: store?.address ?? '',
       phone: store?.phone ?? '',
       email: store?.email ?? '',
-      currency: store?.currency ?? 'UZS',
+      currency: store?.currency ?? 'TJS',
       defaultTaxRate: store?.defaultTaxRate ?? 0,
       openingHours: store?.openingHours ?? '',
       status: store?.status ?? StoreStatus.Active,

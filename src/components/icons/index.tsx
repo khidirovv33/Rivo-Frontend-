@@ -207,3 +207,18 @@ export const BellIcon = createIcon(
     <path d="M10 20a2 2 0 0 0 4 0" />
   </>,
 );
+
+export const ChatIcon = createIcon(
+  <>
+    <path d="M21 12a8 8 0 0 1-8 8H7l-4 3 1-4.5A8 8 0 1 1 21 12z" />
+    <path d="M8 11h8" />
+    <path d="M8 14.5h5" />
+  </>,
+);
+
+export const SendIcon = createIcon(
+  <>
+    <path d="M22 2L11 13" />
+    <path d="M22 2l-7 20-4-9-9-4 20-7z" />
+  </>,
+);

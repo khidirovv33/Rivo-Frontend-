@@ -25,7 +25,7 @@
   border: 1px solid var(--rule-strong);
   background: var(--paper);
   color: var(--ink);
-  font-size: 13px;
+  font-size: 15px;
   cursor: pointer;
 }
 
@@ -49,7 +49,7 @@
 
 .menuGroupLabel {
   padding: 6px 8px 2px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -62,7 +62,7 @@
   text-align: left;
   padding: 7px 8px;
   border-radius: var(--radius);
-  font-size: 13px;
+  font-size: 15px;
   color: var(--ink);
   background: none;
   border: none;
@@ -99,12 +99,12 @@
 }
 
 .userName {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
 }
 
 .userRole {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--ink-faint);
 }
 
