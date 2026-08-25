@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { AssistantWidget, Sidebar, Topbar, type StoreOption } from '@/components';
 import { useAuth } from '@/auth/useAuth';
@@ -10,6 +11,7 @@ export function AppLayout() {
   const { user, logout } = useAuth();
   const { has } = usePermissions();
   const { stores, isLoading, currentStore, currentBranch, selectBranch } = useStoreBranch();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const entries = getVisibleNavEntries(has);
   const storeOptions: StoreOption[] = stores.map((s) => ({
@@ -27,7 +29,7 @@ export function AppLayout() {
 
   return (
     <div className={styles.shell}>
-      <Sidebar entries={entries} />
+      <Sidebar entries={entries} mobileOpen={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
       <div className={styles.main}>
         <Topbar
           stores={storeOptions}
@@ -38,6 +40,7 @@ export function AppLayout() {
           userName={user?.fullName ?? ''}
           roleName={user?.roleName ?? ''}
           onLogout={logout}
+          onMenuClick={() => setMobileNavOpen(true)}
         />
         <main className={styles.content}>
           <Outlet />

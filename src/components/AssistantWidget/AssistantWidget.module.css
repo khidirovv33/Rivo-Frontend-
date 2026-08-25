@@ -39,6 +39,22 @@
   z-index: 200;
 }
 
+@media (max-width: 480px) {
+  .launcher {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .panel {
+    right: 12px;
+    left: 12px;
+    bottom: 80px;
+    width: auto;
+    height: auto;
+    max-height: calc(100vh - 104px);
+  }
+}
+
 .header {
   display: flex;
   align-items: center;

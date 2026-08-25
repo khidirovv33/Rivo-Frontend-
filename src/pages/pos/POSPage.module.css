@@ -60,3 +60,13 @@
   width: 100%;
   margin-top: 12px;
 }
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .right {
+    position: static;
+  }
+}

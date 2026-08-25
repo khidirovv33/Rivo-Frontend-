@@ -2,6 +2,7 @@
   display: flex;
   gap: 6px;
   margin-bottom: 16px;
+  flex-wrap: wrap;
 }
 
 .periodTab {
@@ -70,4 +71,10 @@
 .rankValue {
   font-family: var(--font-data);
   font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 800px) {
+  .twoCol {
+    grid-template-columns: 1fr;
+  }
 }

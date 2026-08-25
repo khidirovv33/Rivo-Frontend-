@@ -21,3 +21,14 @@
   gap: 8px;
   flex-shrink: 0;
 }
+
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
+}

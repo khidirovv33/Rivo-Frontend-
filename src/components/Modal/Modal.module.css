@@ -72,3 +72,21 @@
 .body {
   padding: 22px;
 }
+
+@media (max-width: 640px) {
+  .overlay {
+    padding: 24px 10px;
+  }
+
+  .dialog {
+    max-width: none;
+  }
+
+  .header {
+    padding: 14px 16px;
+  }
+
+  .body {
+    padding: 16px;
+  }
+}

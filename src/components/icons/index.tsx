@@ -161,6 +161,14 @@ export const CloseIcon = createIcon(
   </>,
 );
 
+export const MenuIcon = createIcon(
+  <>
+    <path d="M3 6h18" />
+    <path d="M3 12h18" />
+    <path d="M3 18h18" />
+  </>,
+);
+
 export const CheckIcon = createIcon(<path d="M20 6L9 17l-5-5" />);
 
 export const AlertIcon = createIcon(

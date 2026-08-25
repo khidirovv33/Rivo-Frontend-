@@ -54,3 +54,9 @@
   font-size: 17px;
   margin-bottom: 12px;
 }
+
+@media (max-width: 800px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

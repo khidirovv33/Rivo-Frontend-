@@ -15,6 +15,8 @@ export type SidebarEntry =
 
 interface SidebarProps {
   entries: SidebarEntry[];
+  mobileOpen?: boolean;
+  onClose?: () => void;
 }
 
 function isItemActive(pathname: string, to: string): boolean {
@@ -30,9 +32,13 @@ function findActiveGroupId(pathname: string, entries: SidebarEntry[]): string | 
   return null;
 }
 
-function NavItemLink({ to, label, icon: Icon }: SidebarItem) {
+function NavItemLink({ to, label, icon: Icon, onNavigate }: SidebarItem & { onNavigate?: () => void }) {
   return (
-    <NavLink to={to} className={({ isActive }) => [styles.link, isActive ? styles.linkActive : ''].join(' ')}>
+    <NavLink
+      to={to}
+      onClick={onNavigate}
+      className={({ isActive }) => [styles.link, isActive ? styles.linkActive : ''].join(' ')}
+    >
       <span className={styles.icon}>
         <Icon width={18} height={18} />
       </span>
@@ -41,7 +47,7 @@ function NavItemLink({ to, label, icon: Icon }: SidebarItem) {
   );
 }
 
-export function Sidebar({ entries }: SidebarProps) {
+export function Sidebar({ entries, mobileOpen = false, onClose }: SidebarProps) {
   const location = useLocation();
   const [expanded, setExpanded] = useState<Set<string>>(() => {
     const activeId = findActiveGroupId(location.pathname, entries);
@@ -69,13 +75,15 @@ export function Sidebar({ entries }: SidebarProps) {
   }
 
   return (
-    <aside className={styles.sidebar}>
-      <div className={styles.brand}>Rivo</div>
-      <nav className={styles.nav}>
-        {entries.map((entry) => {
-          if (entry.kind === 'item') {
-            return <NavItemLink key={entry.item.to} {...entry.item} />;
-          }
+    <>
+      {mobileOpen && <div className={styles.backdrop} onClick={onClose} />}
+      <aside className={[styles.sidebar, mobileOpen ? styles.sidebarOpen : ''].join(' ')}>
+        <div className={styles.brand}>Rivo</div>
+        <nav className={styles.nav}>
+          {entries.map((entry) => {
+            if (entry.kind === 'item') {
+              return <NavItemLink key={entry.item.to} {...entry.item} onNavigate={onClose} />;
+            }
 
           const isOpen = expanded.has(entry.id);
           const isGroupActive = entry.items.some((item) => isItemActive(location.pathname, item.to));
@@ -101,14 +109,15 @@ export function Sidebar({ entries }: SidebarProps) {
               {isOpen && (
                 <div className={styles.groupItems}>
                   {entry.items.map((item) => (
-                    <NavItemLink key={item.to} {...item} />
+                    <NavItemLink key={item.to} {...item} onNavigate={onClose} />
                   ))}
                 </div>
               )}
             </div>
           );
-        })}
-      </nav>
-    </aside>
+          })}
+        </nav>
+      </aside>
+    </>
   );
 }
