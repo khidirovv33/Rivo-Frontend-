@@ -1,9 +1,15 @@
 import { z } from 'zod';
-import { SupplierStatus } from '@/types/domain';
 
-// Точные бэкенд-ограничения (MaxLength и т.п.) не выгружены в этот репозиторий — см. заметку
-// в README о сверке с Rivo.Application/{Warehouses,Suppliers,Purchases,Transfers}/Validators/*.cs.
+// Точные бэкенд-ограничения (MaxLength и т.п.) не выгружены в этот репозиторий — только форма
+// DTO сверена по Swagger запущенного бэкенда (SupplierDto.isActive — boolean, не enum-статус).
 // Здесь — разумные дефолты в духе остальных форм проекта.
+
+export const warehouseSchema = z.object({
+  name: z.string().min(1, 'Введите название').max(150, 'Максимум 150 символов'),
+  address: z.string().optional().or(z.literal('')),
+  isActive: z.boolean().optional(),
+});
+export type WarehouseFormValues = z.infer<typeof warehouseSchema>;
 
 export const supplierSchema = z.object({
   name: z.string().min(1, 'Введите название').max(200, 'Максимум 200 символов'),
@@ -11,9 +17,8 @@ export const supplierSchema = z.object({
   phone: z.string().optional().or(z.literal('')),
   email: z.string().email('Некорректный email').optional().or(z.literal('')),
   address: z.string().optional().or(z.literal('')),
-  status: z.coerce.number().refine((v) => Object.values(SupplierStatus).includes(v as never), {
-    message: 'Некорректный статус',
-  }),
+  notes: z.string().optional().or(z.literal('')),
+  isActive: z.boolean().optional(),
 });
 export type SupplierFormValues = z.infer<typeof supplierSchema>;
 export type SupplierFormInput = z.input<typeof supplierSchema>;
@@ -30,11 +35,18 @@ export type PurchaseOrderHeaderValues = z.infer<typeof purchaseOrderHeaderSchema
 
 export const transferHeaderSchema = z
   .object({
-    fromWarehouseId: z.string().min(1, 'Выберите склад-отправитель'),
-    toWarehouseId: z.string().min(1, 'Выберите склад-получатель'),
+    sourceWarehouseId: z.string().min(1, 'Выберите склад-отправитель'),
+    destinationWarehouseId: z.string().min(1, 'Выберите склад-получатель'),
   })
-  .refine((v) => v.fromWarehouseId !== v.toWarehouseId, {
+  .refine((v) => v.sourceWarehouseId !== v.destinationWarehouseId, {
     message: 'Склады отправителя и получателя должны отличаться',
-    path: ['toWarehouseId'],
+    path: ['destinationWarehouseId'],
   });
 export type TransferHeaderValues = z.infer<typeof transferHeaderSchema>;
+
+export const recordPaymentSchema = z.object({
+  amount: z.coerce.number().positive('Сумма должна быть больше нуля'),
+  notes: z.string().optional().or(z.literal('')),
+});
+export type RecordPaymentFormValues = z.infer<typeof recordPaymentSchema>;
+export type RecordPaymentFormInput = z.input<typeof recordPaymentSchema>;

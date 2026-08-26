@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Badge, Button, EmptyState, ErrorState, Loader, Modal, PageHeader, Pagination, Select, Table, Td, Th } from '@/components';
 import { PlusIcon } from '@/components/icons';
 import { usePermissions } from '@/auth/usePermissions';
 import * as transfersApi from '@/api/endpoints/transfers';
+import * as warehousesApi from '@/api/endpoints/warehouses';
 import { extractErrorMessage } from '@/api/client';
 import type { TransferDto } from '@/types/domain';
 import { TransferForm, type TransferSubmitValues } from './TransferForm';
@@ -22,21 +23,28 @@ export function TransfersPage() {
   const [creating, setCreating] = useState(false);
   const [viewing, setViewing] = useState<TransferDto | null>(null);
 
+  const { data: warehouses = [] } = useQuery({ queryKey: ['warehouses-all'], queryFn: () => warehousesApi.listAllWarehouses() });
+  const warehouseNameById = useMemo(() => new Map(warehouses.map((w) => [w.id, w.name])), [warehouses]);
+
   const {
     data: page,
     isLoading,
     isError,
     refetch,
   } = useQuery({
-    queryKey: ['transfers', pageNumber, status],
-    queryFn: () => transfersApi.listTransfers({ pageNumber, pageSize: PAGE_SIZE, status: status ? Number(status) : undefined }),
+    queryKey: ['transfers', pageNumber],
+    queryFn: () => transfersApi.listTransfers({ pageNumber, pageSize: PAGE_SIZE }),
   });
+
+  // GET /api/transfers не поддерживает фильтр по статусу на бэкенде (только warehouseId) —
+  // фильтруем в рамках уже загруженной страницы.
+  const visibleItems = (page?.items ?? []).filter((t) => !status || String(t.status) === status);
 
   const createMutation = useMutation({
     mutationFn: (values: TransferSubmitValues) =>
       transfersApi.createTransfer({
-        fromWarehouseId: values.fromWarehouseId,
-        toWarehouseId: values.toWarehouseId,
+        sourceWarehouseId: values.sourceWarehouseId,
+        destinationWarehouseId: values.destinationWarehouseId,
         items: values.items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
       }),
     onSuccess: () => {
@@ -45,7 +53,8 @@ export function TransfersPage() {
     },
   });
 
-  const canCreate = has('Transfers.Create');
+  // Отдельного Transfers.* права в каталоге нет — зона гейтится Inventory.Read/Create/Approve.
+  const canCreate = has('Inventory.Create');
 
   return (
     <div>
@@ -64,14 +73,7 @@ export function TransfersPage() {
 
       <div className={styles.toolbar}>
         <div className={styles.statusSelect}>
-          <Select
-            label="Статус"
-            value={status}
-            onChange={(e) => {
-              setStatus(e.target.value);
-              setPageNumber(1);
-            }}
-          >
+          <Select label="Статус (на этой странице)" value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="">Все статусы</option>
             {Object.entries(TRANSFER_STATUS_LABEL).map(([value, label]) => (
               <option key={value} value={value}>
@@ -84,9 +86,9 @@ export function TransfersPage() {
 
       {isLoading && <Loader />}
       {isError && <ErrorState onRetry={() => refetch()} />}
-      {!isLoading && !isError && page && page.items.length === 0 && <EmptyState message="Перемещений пока нет." />}
+      {!isLoading && !isError && visibleItems.length === 0 && <EmptyState message="Перемещений пока нет." />}
 
-      {!isLoading && !isError && page && page.items.length > 0 && (
+      {!isLoading && !isError && page && visibleItems.length > 0 && (
         <>
           <Table>
             <thead>
@@ -99,11 +101,11 @@ export function TransfersPage() {
               </tr>
             </thead>
             <tbody>
-              {page.items.map((transfer) => (
+              {visibleItems.map((transfer) => (
                 <tr key={transfer.id}>
                   <Td className="font-data">{transfer.transferNumber}</Td>
-                  <Td>{transfer.fromWarehouseName}</Td>
-                  <Td>{transfer.toWarehouseName}</Td>
+                  <Td>{warehouseNameById.get(transfer.sourceWarehouseId) ?? '—'}</Td>
+                  <Td>{warehouseNameById.get(transfer.destinationWarehouseId) ?? '—'}</Td>
                   <Td>
                     <Badge tone={TRANSFER_STATUS_TONE[transfer.status]}>{TRANSFER_STATUS_LABEL[transfer.status]}</Badge>
                   </Td>
@@ -135,7 +137,13 @@ export function TransfersPage() {
         />
       </Modal>
 
-      <TransferDetailModal transfer={viewing} onClose={() => setViewing(null)} onUpdated={setViewing} />
+      <TransferDetailModal
+        transfer={viewing}
+        sourceWarehouseName={viewing ? warehouseNameById.get(viewing.sourceWarehouseId) : undefined}
+        destinationWarehouseName={viewing ? warehouseNameById.get(viewing.destinationWarehouseId) : undefined}
+        onClose={() => setViewing(null)}
+        onUpdated={setViewing}
+      />
     </div>
   );
 }

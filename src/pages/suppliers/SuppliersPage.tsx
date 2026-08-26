@@ -18,10 +18,10 @@ import { EditIcon, PlusIcon, TrashIcon } from '@/components/icons';
 import { usePermissions } from '@/auth/usePermissions';
 import * as suppliersApi from '@/api/endpoints/suppliers';
 import { extractErrorMessage } from '@/api/client';
+import { formatMoney } from '@/lib/format';
 import type { SupplierFormValues } from '@/lib/validation/inventory';
-import type { SupplierDto, SupplierStatus } from '@/types/domain';
+import type { SupplierDto } from '@/types/domain';
 import { SupplierForm } from './SupplierForm';
-import { SUPPLIER_STATUS_LABEL, SUPPLIER_STATUS_TONE } from './labels';
 import { PurchasesTabs } from '../purchases/PurchasesTabs';
 import styles from './SuppliersPage.module.css';
 import formStyles from '../_shared/CrudForm.module.css';
@@ -71,9 +71,10 @@ export function SuppliersPage() {
         phone: values.phone || undefined,
         email: values.email || undefined,
         address: values.address || undefined,
+        notes: values.notes || undefined,
       };
       if (editing) {
-        return suppliersApi.updateSupplier(editing.id, { ...payload, status: values.status as SupplierStatus });
+        return suppliersApi.updateSupplier(editing.id, { ...payload, isActive: values.isActive ?? true });
       }
       return suppliersApi.createSupplier(payload);
     },
@@ -94,9 +95,12 @@ export function SuppliersPage() {
     }
   }
 
-  const canCreate = has('Suppliers.Create');
-  const canUpdate = has('Suppliers.Update');
-  const canDelete = has('Suppliers.Delete');
+  // Отдельных Suppliers.* прав в каталоге нет — вся зона Dev2 гейтится Inventory.Read/Create/
+  // Approve (сверено по реальному каталогу прав). Удаление — необратимое действие, поэтому
+  // держим его за старшим уровнем Inventory.Approve, а не наравне с созданием/правкой.
+  const canCreate = has('Inventory.Create');
+  const canUpdate = has('Inventory.Create');
+  const canDelete = has('Inventory.Approve');
 
   return (
     <div>
@@ -139,6 +143,7 @@ export function SuppliersPage() {
                 <Th>Контактное лицо</Th>
                 <Th>Телефон</Th>
                 <Th>Email</Th>
+                <Th>Задолженность</Th>
                 <Th>Статус</Th>
                 <Th />
               </tr>
@@ -150,9 +155,12 @@ export function SuppliersPage() {
                   <Td>{supplier.contactPerson ?? '—'}</Td>
                   <Td className="font-data">{supplier.phone ?? '—'}</Td>
                   <Td>{supplier.email ?? '—'}</Td>
+                  <Td numeric className={supplier.outstandingDebt > 0 ? styles.debt : undefined}>
+                    {formatMoney(supplier.outstandingDebt)}
+                  </Td>
                   <Td>
-                    <Badge tone={SUPPLIER_STATUS_TONE[supplier.status]}>
-                      {SUPPLIER_STATUS_LABEL[supplier.status]}
+                    <Badge tone={supplier.isActive ? 'good' : 'neutral'}>
+                      {supplier.isActive ? 'Активен' : 'Неактивен'}
                     </Badge>
                   </Td>
                   <Td>

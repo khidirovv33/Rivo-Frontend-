@@ -41,7 +41,7 @@ export function TransferForm({ onSubmit, onCancel, isSaving, serverError }: Tran
     formState: { errors },
   } = useForm<TransferHeaderValues>({
     resolver: zodResolver(transferHeaderSchema),
-    defaultValues: { fromWarehouseId: '', toWarehouseId: '' },
+    defaultValues: { sourceWarehouseId: '', destinationWarehouseId: '' },
   });
 
   function addProduct(product: ProductDto) {
@@ -72,7 +72,7 @@ export function TransferForm({ onSubmit, onCancel, isSaving, serverError }: Tran
     <form className={formStyles.form} onSubmit={handleSubmit(submit)} noValidate>
       {serverError && <div className={formStyles.error}>{serverError}</div>}
 
-      <Select label="Склад-отправитель" error={errors.fromWarehouseId?.message} {...register('fromWarehouseId')}>
+      <Select label="Склад-отправитель" error={errors.sourceWarehouseId?.message} {...register('sourceWarehouseId')}>
         <option value="">Выберите склад</option>
         {warehouses.map((w) => (
           <option key={w.id} value={w.id}>
@@ -81,7 +81,7 @@ export function TransferForm({ onSubmit, onCancel, isSaving, serverError }: Tran
         ))}
       </Select>
 
-      <Select label="Склад-получатель" error={errors.toWarehouseId?.message} {...register('toWarehouseId')}>
+      <Select label="Склад-получатель" error={errors.destinationWarehouseId?.message} {...register('destinationWarehouseId')}>
         <option value="">Выберите склад</option>
         {warehouses.map((w) => (
           <option key={w.id} value={w.id}>

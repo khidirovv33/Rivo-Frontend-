@@ -5,8 +5,11 @@ import { Badge, Button, EmptyState, ErrorState, Loader, PageHeader, Select, Tabl
 import { usePermissions } from '@/auth/usePermissions';
 import * as purchaseOrdersApi from '@/api/endpoints/purchaseOrders';
 import * as receivingApi from '@/api/endpoints/receiving';
+import * as suppliersApi from '@/api/endpoints/suppliers';
+import * as warehousesApi from '@/api/endpoints/warehouses';
 import { extractErrorMessage } from '@/api/client';
 import { PurchaseOrderStatus } from '@/types/domain';
+import { useProductLookup } from '../_shared/useProductLookup';
 import { PurchasesTabs } from './PurchasesTabs';
 import styles from './ReceivingPage.module.css';
 import formStyles from '../_shared/CrudForm.module.css';
@@ -18,17 +21,28 @@ export function ReceivingPage() {
   const orderId = searchParams.get('orderId') ?? '';
 
   const [quantities, setQuantities] = useState<Record<string, number>>({});
-  const [note, setNote] = useState('');
+  const [notes, setNotes] = useState('');
+
+  const { data: suppliers = [] } = useQuery({ queryKey: ['suppliers-all'], queryFn: suppliersApi.listAllSuppliers });
+  const supplierNameById = useMemo(() => new Map(suppliers.map((s) => [s.id, s.name])), [suppliers]);
+  const { data: warehouses = [] } = useQuery({ queryKey: ['warehouses-all'], queryFn: () => warehousesApi.listAllWarehouses() });
+  const warehouseNameById = useMemo(() => new Map(warehouses.map((w) => [w.id, w.name])), [warehouses]);
 
   const { data: eligibleOrders, isLoading: isListLoading } = useQuery({
     queryKey: ['purchase-orders', 'receivable'],
     queryFn: () => purchaseOrdersApi.listPurchaseOrders({ pageNumber: 1, pageSize: 100 }),
   });
 
+  // Точная граница статусов, с которой можно начать приёмку, backend'ом явно не описана (нет
+  // отдельного эндпоинта "доступно к приёмке") — берём Sent/Confirmed/PartiallyReceived как
+  // разумное приближение.
   const receivable = useMemo(
     () =>
       (eligibleOrders?.items ?? []).filter(
-        (o) => o.status === PurchaseOrderStatus.Sent || o.status === PurchaseOrderStatus.PartiallyReceived,
+        (o) =>
+          o.status === PurchaseOrderStatus.Sent ||
+          o.status === PurchaseOrderStatus.Confirmed ||
+          o.status === PurchaseOrderStatus.PartiallyReceived,
       ),
     [eligibleOrders],
   );
@@ -44,6 +58,8 @@ export function ReceivingPage() {
     enabled: Boolean(orderId),
   });
 
+  const { getName, getSku } = useProductLookup((order?.items ?? []).map((i) => i.productId));
+
   useEffect(() => {
     if (!order) return;
     const initial: Record<string, number> = {};
@@ -51,7 +67,7 @@ export function ReceivingPage() {
       initial[item.id] = 0;
     }
     setQuantities(initial);
-    setNote('');
+    setNotes('');
   }, [order]);
 
   const receiveMutation = useMutation({
@@ -59,7 +75,7 @@ export function ReceivingPage() {
       const items = Object.entries(quantities)
         .filter(([, qty]) => qty > 0)
         .map(([purchaseOrderItemId, quantityReceived]) => ({ purchaseOrderItemId, quantityReceived }));
-      return receivingApi.createReceiving({ purchaseOrderId: orderId, items, note: note || undefined });
+      return receivingApi.createReceiving({ purchaseOrderId: orderId, items, notes: notes || undefined });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchase-order', orderId] });
@@ -68,7 +84,8 @@ export function ReceivingPage() {
     },
   });
 
-  const canReceive = has('Purchases.Receive') || has('Purchases.Update');
+  // Отдельного Purchases.* права в каталоге нет — зона гейтится Inventory.Read/Create/Approve.
+  const canReceive = has('Inventory.Create');
   const hasAnyQuantity = Object.values(quantities).some((q) => q > 0);
 
   return (
@@ -85,7 +102,7 @@ export function ReceivingPage() {
           <option value="">Выберите заказ для приёмки</option>
           {receivable.map((o) => (
             <option key={o.id} value={o.id}>
-              {o.orderNumber} — {o.supplierName}
+              {o.orderNumber} — {supplierNameById.get(o.supplierId) ?? '—'}
             </option>
           ))}
         </Select>
@@ -103,8 +120,8 @@ export function ReceivingPage() {
         <>
           <div className={styles.summaryRow}>
             <Badge tone="neutral">Заказ {order.orderNumber}</Badge>
-            <span>{order.supplierName}</span>
-            <span>{order.warehouseName}</span>
+            <span>{supplierNameById.get(order.supplierId) ?? '—'}</span>
+            <span>{warehouseNameById.get(order.warehouseId) ?? '—'}</span>
           </div>
 
           {receiveMutation.error && (
@@ -128,18 +145,18 @@ export function ReceivingPage() {
             </thead>
             <tbody>
               {order.items.map((item) => {
-                const remaining = item.quantityOrdered - item.quantityReceived;
+                const remaining = item.remainingQuantity;
                 return (
                   <tr key={item.id}>
                     <Td>
-                      {item.productName}
+                      {getName(item.productId)}
                       <br />
                       <span className="font-data" style={{ fontSize: 11, color: 'var(--ink-faint)' }}>
-                        {item.productSku}
+                        {getSku(item.productId)}
                       </span>
                     </Td>
-                    <Td numeric>{item.quantityOrdered}</Td>
-                    <Td numeric>{item.quantityReceived}</Td>
+                    <Td numeric>{item.quantity}</Td>
+                    <Td numeric>{item.receivedQuantity}</Td>
                     <Td numeric>{remaining}</Td>
                     <Td>
                       <input
@@ -165,7 +182,7 @@ export function ReceivingPage() {
 
           {canReceive && (
             <div className={formStyles.form} style={{ marginTop: 14 }}>
-              <TextField label="Комментарий (необязательно)" value={note} onChange={(e) => setNote(e.target.value)} />
+              <TextField label="Комментарий (необязательно)" value={notes} onChange={(e) => setNotes(e.target.value)} />
               <div className={formStyles.formActions}>
                 <Button
                   variant="primary"

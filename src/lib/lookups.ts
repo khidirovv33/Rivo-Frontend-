@@ -37,3 +37,16 @@ export function useProductName(id: string | null | undefined): string | null {
   });
   return data?.name ?? null;
 }
+
+/** Для таблиц с потенциально многими строками (например, отчёт по остаткам) — один запрос
+ * вместо резолва имени на каждую строку через useProductName. */
+export function useProductsLookup() {
+  const { data, isLoading } = useQuery({
+    queryKey: ['products-lookup'],
+    queryFn: () => productsApi.listProducts({ pageNumber: 1, pageSize: 200 }),
+    staleTime: 60_000,
+  });
+  const products = data?.items ?? [];
+  const nameOf = (id: string) => products.find((p) => p.id === id)?.name ?? '—';
+  return { products, nameOf, isLoading };
+}
