@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDownIcon, LogOutIcon, StoreIcon } from '../icons';
+import { ChevronDownIcon, LogOutIcon, MenuIcon, StoreIcon } from '../icons';
 import styles from './Topbar.module.css';
 
 export interface StoreOption {
@@ -17,6 +17,7 @@ interface TopbarProps {
   userName: string;
   roleName: string;
   onLogout: () => void;
+  onMenuClick?: () => void;
 }
 
 export function Topbar({
@@ -28,6 +29,7 @@ export function Topbar({
   userName,
   roleName,
   onLogout,
+  onMenuClick,
 }: TopbarProps) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -45,10 +47,13 @@ export function Topbar({
 
   return (
     <header className={styles.topbar}>
+      <button type="button" className={styles.menuButton} onClick={onMenuClick} aria-label="Открыть меню">
+        <MenuIcon width={20} height={20} />
+      </button>
       <div className={styles.switcher} ref={menuRef}>
         <button type="button" className={styles.switcherButton} onClick={() => setOpen((v) => !v)}>
           <StoreIcon width={16} height={16} />
-          {currentLabel}
+          <span className={styles.switcherLabel}>{currentLabel}</span>
           <ChevronDownIcon width={14} height={14} />
         </button>
         {open && (

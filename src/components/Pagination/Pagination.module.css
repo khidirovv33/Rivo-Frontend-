@@ -9,6 +9,6 @@
 .info {
   font-family: var(--font-data);
   font-variant-numeric: tabular-nums;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--ink-muted);
 }

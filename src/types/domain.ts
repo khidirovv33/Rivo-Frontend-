@@ -416,6 +416,33 @@ export interface CreateReturnRequest {
   items: CreateReturnItemRequest[];
 }
 
+// ---- Dashboard ----
+
+export interface DailySalesPointDto {
+  date: string;
+  total: number;
+}
+
+export interface TopProductDto {
+  productId: string;
+  productName: string;
+  quantitySold: number;
+  revenue: number;
+}
+
+export interface DashboardDto {
+  salesToday: number;
+  salesChangePercent: number | null;
+  ordersToday: number;
+  ordersChangePercent: number | null;
+  averageCheckToday: number;
+  averageCheckChangePercent: number | null;
+  lowStockProductCount: number;
+  lowStockWarehouseCount: number;
+  weeklySales: DailySalesPointDto[];
+  topProducts: TopProductDto[];
+}
+
 // ---- Warehouses / Stock ----
 // DTO-поля — лучшее приближение к бэкенду по FRONTEND_TZ.md и Rivo_Frontend_Dev2_Inventory_Operations.md
 // (точный контракт стока/движений/приёма/перемещений/ревизий не выгружен в этот репозиторий —
@@ -679,4 +706,19 @@ export interface GenerateBarcodeRequest {
 
 export interface GenerateBarcodeResult {
   barcode: string;
+}
+
+// ---- AI-помощник (проксирует чат к OpenAI на бэкенде — ключ туда не долетает) ----
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface AskAssistantRequest {
+  messages: ChatMessage[];
+}
+
+export interface AssistantReply {
+  reply: string;
 }

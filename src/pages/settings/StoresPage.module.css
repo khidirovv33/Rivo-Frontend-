@@ -12,7 +12,7 @@
 }
 
 .storeName {
-  font-size: 17px;
+  font-size: 19px;
 }
 
 .storeHeaderRight {
@@ -26,7 +26,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 4px 16px;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--ink-muted);
 }
 
@@ -44,7 +44,7 @@
 }
 
 .branchesTitle {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -65,10 +65,10 @@
 
 .branchName {
   flex: 1;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .branchMeta {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--ink-faint);
 }

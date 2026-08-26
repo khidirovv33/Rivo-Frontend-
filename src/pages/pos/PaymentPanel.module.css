@@ -16,7 +16,7 @@
 .summary {
   display: flex;
   justify-content: space-between;
-  font-size: 13px;
+  font-size: 15px;
   padding: 8px 0;
   border-top: 1px dashed var(--rule);
   margin-top: 4px;

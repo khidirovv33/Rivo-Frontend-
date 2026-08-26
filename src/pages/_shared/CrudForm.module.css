@@ -5,7 +5,7 @@
 }
 
 .error {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--critical);
   background: var(--critical-soft);
   border-radius: var(--radius);
@@ -27,5 +27,25 @@
 
 .tableCard {
   padding: 0;
+}
+
+.inlineNumber {
+  width: 90px;
+  padding: 6px 8px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  font-family: var(--font-data);
+  font-size: 15px;
+  background: var(--paper-raised);
+  color: var(--ink);
+}
+
+.formTotal {
+  flex: 1;
+  font-family: var(--font-data);
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
 }
 

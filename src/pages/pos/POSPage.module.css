@@ -29,14 +29,14 @@
 .totalsRow {
   display: flex;
   justify-content: space-between;
-  font-size: 13px;
+  font-size: 15px;
   color: var(--ink-muted);
 }
 
 .totalsRowMain {
   display: flex;
   justify-content: space-between;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   border-top: 1px solid var(--rule);
   padding-top: 8px;
@@ -48,7 +48,7 @@
 }
 
 .checkoutError {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--critical);
   background: var(--critical-soft);
   border-radius: var(--radius);
@@ -59,4 +59,14 @@
 .checkoutButton {
   width: 100%;
   margin-top: 12px;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .right {
+    position: static;
+  }
 }

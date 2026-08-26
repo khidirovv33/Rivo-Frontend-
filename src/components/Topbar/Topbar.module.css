@@ -11,6 +11,32 @@
   position: relative;
 }
 
+.menuButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin-right: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.menuButton:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+@media (max-width: 900px) {
+  .menuButton {
+    display: inline-flex;
+  }
+}
+
 .switcher {
   position: relative;
 }
@@ -25,13 +51,19 @@
   border: 1px solid var(--rule-strong);
   background: var(--paper);
   color: var(--ink);
-  font-size: 13px;
+  font-size: 15px;
   cursor: pointer;
 }
 
 .switcherButton:hover {
   background: var(--accent-soft);
   border-color: var(--accent);
+}
+
+.switcherLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .menu {
@@ -49,7 +81,7 @@
 
 .menuGroupLabel {
   padding: 6px 8px 2px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -62,7 +94,7 @@
   text-align: left;
   padding: 7px 8px;
   border-radius: var(--radius);
-  font-size: 13px;
+  font-size: 15px;
   color: var(--ink);
   background: none;
   border: none;
@@ -99,12 +131,12 @@
 }
 
 .userName {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
 }
 
 .userRole {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--ink-faint);
 }
 
@@ -124,4 +156,19 @@
 .logoutButton:hover {
   background: var(--critical-soft);
   color: var(--critical);
+}
+
+@media (max-width: 640px) {
+  .topbar {
+    padding: 0 12px;
+    gap: 6px;
+  }
+
+  .switcherButton {
+    max-width: 160px;
+  }
+
+  .userInfo {
+    display: none;
+  }
 }

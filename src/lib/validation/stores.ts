@@ -9,7 +9,7 @@ export const storeSchema = z.object({
   address: z.string().optional().or(z.literal('')),
   phone: z.string().optional().or(z.literal('')),
   email: z.string().email('Некорректный email').optional().or(z.literal('')),
-  currency: z.string().length(3, 'Код валюты — 3 символа (например, UZS)'),
+  currency: z.string().length(3, 'Код валюты — 3 символа (например, TJS)'),
   defaultTaxRate: z.coerce.number().min(0, 'Не может быть отрицательной'),
   openingHours: z.string().optional().or(z.literal('')),
   status: z.coerce.number().refine((v) => Object.values(StoreStatus).includes(v as never), {
