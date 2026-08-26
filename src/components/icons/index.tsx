@@ -161,6 +161,24 @@ export const CloseIcon = createIcon(
   </>,
 );
 
+export const MenuIcon = createIcon(
+  <>
+    <path d="M3 6h18" />
+    <path d="M3 12h18" />
+    <path d="M3 18h18" />
+  </>,
+);
+
+export const ManualSaleIcon = createIcon(
+  <>
+    <rect x="4" y="2" width="16" height="20" rx="2" />
+    <path d="M9 7h6" />
+    <path d="M9 11h6" />
+    <path d="M9 15h3" />
+    <path d="M15 15l1.5 1.5L20 13" />
+  </>,
+);
+
 export const CheckIcon = createIcon(<path d="M20 6L9 17l-5-5" />);
 
 export const AlertIcon = createIcon(
@@ -212,5 +230,41 @@ export const StoreIcon = createIcon(
     <path d="M3 9l1.5-5h15L21 9" />
     <path d="M4 9v10h16V9" />
     <path d="M9 19v-6h6v6" />
+  </>,
+);
+
+export const AnalyticsIcon = createIcon(
+  <>
+    <path d="M3 17l6-6 4 4 8-8" />
+    <path d="M15 7h6v6" />
+  </>,
+);
+
+export const AuditIcon = createIcon(
+  <>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l3.5 2" />
+  </>,
+);
+
+export const BellIcon = createIcon(
+  <>
+    <path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6z" />
+    <path d="M10 20a2 2 0 0 0 4 0" />
+  </>,
+);
+
+export const ChatIcon = createIcon(
+  <>
+    <path d="M21 12a8 8 0 0 1-8 8H7l-4 3 1-4.5A8 8 0 1 1 21 12z" />
+    <path d="M8 11h8" />
+    <path d="M8 14.5h5" />
+  </>,
+);
+
+export const SendIcon = createIcon(
+  <>
+    <path d="M22 2L11 13" />
+    <path d="M22 2l-7 20-4-9-9-4 20-7z" />
   </>,
 );

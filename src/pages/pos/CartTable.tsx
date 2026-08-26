@@ -36,7 +36,7 @@ export function CartTable({ items, lines, onUpdate, onRemove }: CartTableProps) 
               {item.name}
               {item.variationLabel && <span style={{ color: 'var(--ink-faint)' }}> · {item.variationLabel}</span>}
               <br />
-              <span className="font-data" style={{ fontSize: 11, color: 'var(--ink-faint)' }}>
+              <span className="font-data" style={{ fontSize: 13, color: 'var(--ink-faint)' }}>
                 {item.sku}
               </span>
             </Td>

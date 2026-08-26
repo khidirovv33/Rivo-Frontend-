@@ -7,17 +7,28 @@
 }
 
 .title {
-  font-size: 22px;
+  font-size: 24px;
 }
 
 .subtitle {
   margin-top: 4px;
   color: var(--ink-muted);
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .actions {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
 }

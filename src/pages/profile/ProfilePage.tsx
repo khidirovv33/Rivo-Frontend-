@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Card, PageHeader, TextField } from '@/components';
+import { Button, Card, Modal, PageHeader, TextField } from '@/components';
 import { useAuth } from '@/auth/useAuth';
 import * as usersApi from '@/api/endpoints/users';
 import * as authApi from '@/api/endpoints/auth';
@@ -18,20 +18,62 @@ import formStyles from '../_shared/CrudForm.module.css';
 
 export function ProfilePage() {
   const { user, refreshCurrentUser } = useAuth();
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [editingPassword, setEditingPassword] = useState(false);
 
   return (
     <div>
       <PageHeader title="Профиль" />
       <div className={styles.grid}>
         <Card>
-          <h2 className={styles.cardTitle}>Личные данные</h2>
-          <ProfileForm fullName={user?.fullName ?? ''} phoneNumber={user?.phoneNumber ?? ''} email={user?.email ?? ''} onSaved={refreshCurrentUser} />
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>Личные данные</h2>
+            <Button variant="secondary" size="sm" onClick={() => setEditingProfile(true)}>
+              Изменить
+            </Button>
+          </div>
+          <div className={styles.details}>
+            <div className={styles.detailRow}>
+              <span className={styles.detailLabel}>Email</span>
+              <span className={styles.detailValue}>{user?.email}</span>
+            </div>
+            <div className={styles.detailRow}>
+              <span className={styles.detailLabel}>Имя</span>
+              <span className={styles.detailValue}>{user?.fullName}</span>
+            </div>
+            <div className={styles.detailRow}>
+              <span className={styles.detailLabel}>Телефон</span>
+              <span className={styles.detailValue}>{user?.phoneNumber || '—'}</span>
+            </div>
+          </div>
         </Card>
+
         <Card>
-          <h2 className={styles.cardTitle}>Смена пароля</h2>
-          <PasswordForm />
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>Пароль</h2>
+            <Button variant="secondary" size="sm" onClick={() => setEditingPassword(true)}>
+              Изменить
+            </Button>
+          </div>
+          <p className={styles.hint}>Пароль скрыт. Чтобы задать новый, нажмите «Изменить».</p>
         </Card>
       </div>
+
+      <Modal open={editingProfile} onClose={() => setEditingProfile(false)} title="Личные данные">
+        <ProfileForm
+          fullName={user?.fullName ?? ''}
+          phoneNumber={user?.phoneNumber ?? ''}
+          email={user?.email ?? ''}
+          onSaved={async () => {
+            await refreshCurrentUser();
+            setEditingProfile(false);
+          }}
+        />
+      </Modal>
+
+      <Modal open={editingPassword} onClose={() => setEditingPassword(false)} title="Смена пароля">
+        <PasswordForm onSaved={() => setEditingPassword(false)} />
+      </Modal>
     </div>
   );
 }
@@ -65,7 +107,6 @@ function ProfileForm({
   return (
     <form className={formStyles.form} onSubmit={handleSubmit((values) => mutation.mutate(values))} noValidate>
       {mutation.isError && <div className={formStyles.error}>{extractErrorMessage(mutation.error)}</div>}
-      {mutation.isSuccess && <div className={styles.success}>Сохранено.</div>}
       <TextField label="Email" value={email} disabled />
       <TextField label="Имя" error={errors.fullName?.message} {...register('fullName')} />
       <TextField label="Телефон (необязательно)" error={errors.phoneNumber?.message} {...register('phoneNumber')} />
@@ -78,38 +119,25 @@ function ProfileForm({
   );
 }
 
-function PasswordForm() {
+function PasswordForm({ onSaved }: { onSaved: () => void }) {
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm<ChangePasswordFormValues>({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
   });
-  const [success, setSuccess] = useState(false);
 
   const mutation = useMutation({
     mutationFn: (values: ChangePasswordFormValues) =>
       authApi.changePassword({ currentPassword: values.currentPassword, newPassword: values.newPassword }),
-    onSuccess: () => {
-      setSuccess(true);
-      reset();
-    },
+    onSuccess: () => onSaved(),
   });
 
   return (
-    <form
-      className={formStyles.form}
-      onSubmit={handleSubmit((values) => {
-        setSuccess(false);
-        mutation.mutate(values);
-      })}
-      noValidate
-    >
+    <form className={formStyles.form} onSubmit={handleSubmit((values) => mutation.mutate(values))} noValidate>
       {mutation.isError && <div className={formStyles.error}>{extractErrorMessage(mutation.error)}</div>}
-      {success && <div className={styles.success}>Пароль изменён.</div>}
       <TextField
         label="Текущий пароль"
         type="password"

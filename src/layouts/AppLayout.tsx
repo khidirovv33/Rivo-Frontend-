@@ -1,17 +1,19 @@
+import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Sidebar, Topbar, type StoreOption } from '@/components';
+import { AssistantWidget, Sidebar, Topbar, type StoreOption } from '@/components';
 import { useAuth } from '@/auth/useAuth';
 import { usePermissions } from '@/auth/usePermissions';
 import { useStoreBranch } from '@/store-context/useStoreBranch';
-import { getVisibleNavItems } from '@/routes/navItems';
+import { getVisibleNavEntries } from '@/routes/navItems';
 import styles from './AppLayout.module.css';
 
 export function AppLayout() {
   const { user, logout } = useAuth();
   const { has } = usePermissions();
   const { stores, isLoading, currentStore, currentBranch, selectBranch } = useStoreBranch();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
-  const items = getVisibleNavItems(has);
+  const entries = getVisibleNavEntries(has);
   const storeOptions: StoreOption[] = stores.map((s) => ({
     id: s.id,
     name: s.name,
@@ -27,7 +29,7 @@ export function AppLayout() {
 
   return (
     <div className={styles.shell}>
-      <Sidebar items={items} />
+      <Sidebar entries={entries} mobileOpen={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
       <div className={styles.main}>
         <Topbar
           stores={storeOptions}
@@ -38,11 +40,13 @@ export function AppLayout() {
           userName={user?.fullName ?? ''}
           roleName={user?.roleName ?? ''}
           onLogout={logout}
+          onMenuClick={() => setMobileNavOpen(true)}
         />
         <main className={styles.content}>
           <Outlet />
         </main>
       </div>
+      <AssistantWidget />
     </div>
   );
 }

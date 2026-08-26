@@ -8,6 +8,10 @@ interface StatCardProps {
     label: string;
   };
   sparkline?: number[];
+  /** Простая уточняющая строка вместо трендов/спарклайна — например "по 3 складам". */
+  hint?: string;
+  /** Цвет значения — critical для тревожных метрик (например "товары заканчиваются"). */
+  tone?: 'default' | 'critical';
 }
 
 function Sparkline({ points }: { points: number[] }) {
@@ -29,11 +33,11 @@ function Sparkline({ points }: { points: number[] }) {
   );
 }
 
-export function StatCard({ label, value, trend, sparkline }: StatCardProps) {
+export function StatCard({ label, value, trend, sparkline, hint, tone = 'default' }: StatCardProps) {
   return (
     <div className={styles.card}>
       <span className={styles.label}>{label}</span>
-      <span className={styles.value}>{value}</span>
+      <span className={[styles.value, tone === 'critical' ? styles.valueCritical : ''].join(' ')}>{value}</span>
       {(trend || sparkline) && (
         <div className={styles.trendRow}>
           {trend && (
@@ -48,6 +52,7 @@ export function StatCard({ label, value, trend, sparkline }: StatCardProps) {
           )}
         </div>
       )}
+      {hint && <span className={styles.hint}>{hint}</span>}
     </div>
   );
 }

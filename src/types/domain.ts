@@ -416,6 +416,33 @@ export interface CreateReturnRequest {
   items: CreateReturnItemRequest[];
 }
 
+// ---- Dashboard ----
+
+export interface DailySalesPointDto {
+  date: string;
+  total: number;
+}
+
+export interface TopProductDto {
+  productId: string;
+  productName: string;
+  quantitySold: number;
+  revenue: number;
+}
+
+export interface DashboardDto {
+  salesToday: number;
+  salesChangePercent: number | null;
+  ordersToday: number;
+  ordersChangePercent: number | null;
+  averageCheckToday: number;
+  averageCheckChangePercent: number | null;
+  lowStockProductCount: number;
+  lowStockWarehouseCount: number;
+  weeklySales: DailySalesPointDto[];
+  topProducts: TopProductDto[];
+}
+
 // ---- Warehouses / Stock ----
 // DTO-поля сверены напрямую по GET /swagger/v1/swagger.json запущенного бэкенда (localhost:5173,
 // 2026-08-24) — актуальны для той версии API. Бэкенд НЕ денормализует связанные имена
@@ -753,4 +780,19 @@ export interface RegisterBarcodeRequest {
   code: string;
   type: BarcodeType;
   isPrimary: boolean;
+}
+
+// ---- AI-помощник (проксирует чат к OpenAI на бэкенде — ключ туда не долетает) ----
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface AskAssistantRequest {
+  messages: ChatMessage[];
+}
+
+export interface AssistantReply {
+  reply: string;
 }
