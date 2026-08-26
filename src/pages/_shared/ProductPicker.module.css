@@ -32,26 +32,20 @@
 
 .resultRow:hover {
   color: var(--accent);
+  background: var(--accent-soft);
 }
 
 .resultName {
-  font-size: 15px;
+  font-size: 13px;
 }
 
 .resultMeta {
-  font-size: 13px;
+  font-size: 11px;
   color: var(--ink-faint);
-}
-
-.resultPrice {
-  flex-shrink: 0;
 }
 
 .empty {
   padding: 12px;
-  font-size: 14px;
+  font-size: 12px;
   color: var(--ink-faint);
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }

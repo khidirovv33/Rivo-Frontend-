@@ -3,6 +3,7 @@ import type { SidebarItem } from '@/components';
 import {
   AnalyticsIcon,
   AuditIcon,
+  BarcodeIcon,
   BellIcon,
   CustomersIcon,
   DashboardIcon,
@@ -17,14 +18,14 @@ import {
   RolesIcon,
   SalesIcon,
   SettingsIcon,
+  SuppliersIcon,
   TransfersIcon,
   WarehouseIcon,
 } from '@/components/icons';
 
 interface NavItemConfig extends SidebarItem {
   // Право, необходимое для показа пункта — см. FRONTEND_TZ.md §5.4 (скрывать, не дизейблить).
-  // Пункты без permission (Обзор/Профиль, а также чужие зоны Dev2/Dev3, которые пока просто
-  // заглушки без реальных действий) показываются всем.
+  // Пункты без permission (Обзор/Профиль) показываются всем.
   permission?: string;
 }
 
@@ -39,6 +40,11 @@ interface NavGroupConfig {
 // в том порядке, в котором должны идти в меню.
 export type NavEntryConfig = { kind: 'item'; item: NavItemConfig } | { kind: 'group'; group: NavGroupConfig };
 
+// Права зоны Dev2 (Warehouses/Suppliers/Purchases/Transfers/Inventory) в каталоге
+// `GET /api/permissions` явно задокументированы только для ревизий (`Inventory.*`) —
+// см. Rivo_Frontend_Dev2_Inventory_Operations.md. Остальные строки ниже (Suppliers.*,
+// Purchases.*, Transfers.*, Warehouses.*) — по аналогии с существующим паттерном
+// `{Модуль}.{Действие}`; сверить с реальным каталогом прав и поправить при расхождении.
 export const NAV_ENTRIES: NavEntryConfig[] = [
   { kind: 'item', item: { to: '/dashboard', label: 'Обзор', icon: DashboardIcon } },
   {
@@ -62,10 +68,12 @@ export const NAV_ENTRIES: NavEntryConfig[] = [
       label: 'Склад',
       icon: WarehouseIcon,
       items: [
-        { to: '/warehouse', label: 'Склад', icon: WarehouseIcon },
-        { to: '/purchases', label: 'Закупки', icon: PurchasesIcon },
-        { to: '/transfers', label: 'Перемещения', icon: TransfersIcon },
-        { to: '/inventory', label: 'Ревизии', icon: InventoryIcon },
+        { to: '/warehouse', label: 'Склад', icon: WarehouseIcon, permission: 'Warehouses.Read' },
+        { to: '/suppliers', label: 'Поставщики', icon: SuppliersIcon, permission: 'Suppliers.Read' },
+        { to: '/purchases', label: 'Закупки', icon: PurchasesIcon, permission: 'Purchases.Read' },
+        { to: '/transfers', label: 'Перемещения', icon: TransfersIcon, permission: 'Transfers.Read' },
+        { to: '/inventory', label: 'Ревизии', icon: InventoryIcon, permission: 'Inventory.Read' },
+        { to: '/barcodes', label: 'Штрихкоды', icon: BarcodeIcon, permission: 'Products.Read' },
       ],
     },
   },

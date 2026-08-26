@@ -1,10 +1,9 @@
 import { NavLink } from 'react-router-dom';
-import styles from './WarehouseTabs.module.css';
+import styles from '../products/CatalogTabs.module.css';
 
 const TABS = [
-  { to: '/warehouse', label: 'Склады', end: true },
-  { to: '/warehouse/stock', label: 'Остатки', end: false },
-  { to: '/warehouse/movements', label: 'Движения', end: false },
+  { to: '/warehouse', label: 'Остатки', end: true },
+  { to: '/warehouse/movements', label: 'История движений', end: false },
 ];
 
 export function WarehouseTabs() {

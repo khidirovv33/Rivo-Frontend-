@@ -1,71 +1,90 @@
 import { useState } from 'react';
-import { Button, Select, Table, Td, TextField, Th } from '@/components';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useQuery } from '@tanstack/react-query';
+import { Button, EmptyState, Select, Table, Td, TextField, Th } from '@/components';
 import { TrashIcon } from '@/components/icons';
+import * as suppliersApi from '@/api/endpoints/suppliers';
+import * as warehousesApi from '@/api/endpoints/warehouses';
 import { formatMoney } from '@/lib/format';
-import { useSuppliersLookup, useWarehousesLookup } from '@/lib/lookups';
+import { purchaseOrderHeaderSchema, type PurchaseOrderHeaderValues } from '@/lib/validation/inventory';
 import { ProductPicker } from '../_shared/ProductPicker';
-import type { CreatePurchaseOrderRequest } from '@/types/domain';
-import styles from '../_shared/CrudForm.module.css';
+import type { ProductDto } from '@/types/domain';
+import styles from './PurchaseOrderForm.module.css';
+import formStyles from '../_shared/CrudForm.module.css';
 
-interface DraftLine {
+interface DraftItem {
   productId: string;
   productName: string;
+  productSku: string;
   quantity: number;
-  unitCost: number;
+  unitPrice: number;
 }
 
-export function PurchaseOrderForm({
-  onSubmit,
-  onCancel,
-  isSaving,
-  serverError,
-}: {
-  onSubmit: (payload: CreatePurchaseOrderRequest) => void;
+export interface PurchaseOrderSubmitValues extends PurchaseOrderHeaderValues {
+  items: DraftItem[];
+}
+
+interface PurchaseOrderFormProps {
+  branchId: string | undefined;
+  onSubmit: (values: PurchaseOrderSubmitValues) => void;
   onCancel: () => void;
   isSaving: boolean;
   serverError: string | null;
-}) {
-  const { suppliers } = useSuppliersLookup();
-  const { warehouses } = useWarehousesLookup();
+}
 
-  const [supplierId, setSupplierId] = useState(suppliers[0]?.id ?? '');
-  const [warehouseId, setWarehouseId] = useState(warehouses[0]?.id ?? '');
-  const [expectedDate, setExpectedDate] = useState('');
-  const [notes, setNotes] = useState('');
-  const [lines, setLines] = useState<DraftLine[]>([]);
+export function PurchaseOrderForm({ branchId, onSubmit, onCancel, isSaving, serverError }: PurchaseOrderFormProps) {
+  const [items, setItems] = useState<DraftItem[]>([]);
+  const [itemsError, setItemsError] = useState<string | null>(null);
 
-  const total = lines.reduce((sum, l) => sum + l.quantity * l.unitCost, 0);
-  const canSubmit = Boolean(supplierId) && Boolean(warehouseId) && lines.length > 0;
+  const { data: suppliers = [] } = useQuery({ queryKey: ['suppliers-all'], queryFn: suppliersApi.listAllSuppliers });
+  const { data: warehouses = [] } = useQuery({
+    queryKey: ['warehouses', branchId],
+    queryFn: () => warehousesApi.listAllWarehouses(branchId),
+    enabled: Boolean(branchId),
+  });
 
-  function addLine(productId: string, productName: string) {
-    if (lines.some((l) => l.productId === productId)) return;
-    setLines((prev) => [...prev, { productId, productName, quantity: 1, unitCost: 0 }]);
-  }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<PurchaseOrderHeaderValues>({
+    resolver: zodResolver(purchaseOrderHeaderSchema),
+    defaultValues: { supplierId: '', warehouseId: '', expectedDate: '' },
+  });
 
-  function updateLine(productId: string, patch: Partial<DraftLine>) {
-    setLines((prev) => prev.map((l) => (l.productId === productId ? { ...l, ...patch } : l)));
-  }
-
-  function removeLine(productId: string) {
-    setLines((prev) => prev.filter((l) => l.productId !== productId));
-  }
-
-  function handleSubmit() {
-    if (!canSubmit) return;
-    onSubmit({
-      supplierId,
-      warehouseId,
-      expectedDate: expectedDate || undefined,
-      notes: notes || undefined,
-      items: lines.map((l) => ({ productId: l.productId, quantity: l.quantity, unitCost: l.unitCost })),
+  function addProduct(product: ProductDto) {
+    setItems((prev) => {
+      if (prev.some((i) => i.productId === product.id)) return prev;
+      return [...prev, { productId: product.id, productName: product.name, productSku: product.sku, quantity: 1, unitPrice: product.purchasePrice }];
     });
+    setItemsError(null);
+  }
+
+  function updateItem(productId: string, patch: Partial<DraftItem>) {
+    setItems((prev) => prev.map((i) => (i.productId === productId ? { ...i, ...patch } : i)));
+  }
+
+  function removeItem(productId: string) {
+    setItems((prev) => prev.filter((i) => i.productId !== productId));
+  }
+
+  const total = items.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0);
+
+  function submit(values: PurchaseOrderHeaderValues) {
+    if (items.length === 0) {
+      setItemsError('Добавьте хотя бы одну позицию');
+      return;
+    }
+    onSubmit({ ...values, items });
   }
 
   return (
-    <div className={styles.form}>
-      {serverError && <div className={styles.error}>{serverError}</div>}
+    <form className={formStyles.form} onSubmit={handleSubmit(submit)} noValidate>
+      {serverError && <div className={formStyles.error}>{serverError}</div>}
 
-      <Select label="Поставщик" value={supplierId} onChange={(e) => setSupplierId(e.target.value)}>
+      <Select label="Поставщик" error={errors.supplierId?.message} {...register('supplierId')}>
+        <option value="">Выберите поставщика</option>
         {suppliers.map((s) => (
           <option key={s.id} value={s.id}>
             {s.name}
@@ -73,7 +92,8 @@ export function PurchaseOrderForm({
         ))}
       </Select>
 
-      <Select label="Склад" value={warehouseId} onChange={(e) => setWarehouseId(e.target.value)}>
+      <Select label="Склад приёмки" error={errors.warehouseId?.message} {...register('warehouseId')}>
+        <option value="">Выберите склад</option>
         {warehouses.map((w) => (
           <option key={w.id} value={w.id}>
             {w.name}
@@ -81,73 +101,81 @@ export function PurchaseOrderForm({
         ))}
       </Select>
 
-      <TextField
-        label="Ожидаемая дата поставки (необязательно)"
-        type="date"
-        value={expectedDate}
-        onChange={(e) => setExpectedDate(e.target.value)}
-      />
+      <TextField label="Ожидаемая дата (необязательно)" type="date" error={errors.expectedDate?.message} {...register('expectedDate')} />
 
-      <TextField label="Заметки (необязательно)" value={notes} onChange={(e) => setNotes(e.target.value)} />
-
-      <ProductPicker onPick={(product) => addLine(product.id, product.name)} />
-
-      {lines.length > 0 && (
-        <Table>
-          <thead>
-            <tr>
-              <Th>Товар</Th>
-              <Th>Кол-во</Th>
-              <Th>Цена закупки</Th>
-              <Th>Сумма</Th>
-              <Th />
-            </tr>
-          </thead>
-          <tbody>
-            {lines.map((line) => (
-              <tr key={line.productId}>
-                <Td>{line.productName}</Td>
-                <Td>
-                  <input
-                    type="number"
-                    min={1}
-                    step="1"
-                    value={line.quantity}
-                    onChange={(e) => updateLine(line.productId, { quantity: Math.max(1, Number(e.target.value) || 1) })}
-                    className={styles.inlineNumber}
-                  />
-                </Td>
-                <Td>
-                  <input
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    value={line.unitCost}
-                    onChange={(e) => updateLine(line.productId, { unitCost: Math.max(0, Number(e.target.value) || 0) })}
-                    className={styles.inlineNumber}
-                  />
-                </Td>
-                <Td numeric className="font-data">{formatMoney(line.quantity * line.unitCost)}</Td>
-                <Td>
-                  <Button variant="ghost" size="sm" onClick={() => removeLine(line.productId)} aria-label="Удалить">
-                    <TrashIcon width={15} height={15} />
-                  </Button>
-                </Td>
+      <div className={styles.itemsSection}>
+        <span className={styles.itemsLabel}>Позиции заказа</span>
+        <ProductPicker onPick={addProduct} />
+        {itemsError && <div className={formStyles.error}>{itemsError}</div>}
+        {items.length === 0 ? (
+          <EmptyState message="Позиции не добавлены." />
+        ) : (
+          <Table>
+            <thead>
+              <tr>
+                <Th>Товар</Th>
+                <Th>Кол-во</Th>
+                <Th>Цена</Th>
+                <Th>Сумма</Th>
+                <Th />
               </tr>
-            ))}
-          </tbody>
-        </Table>
-      )}
+            </thead>
+            <tbody>
+              {items.map((item) => (
+                <tr key={item.productId}>
+                  <Td>
+                    {item.productName}
+                    <br />
+                    <span className="font-data" style={{ fontSize: 11, color: 'var(--ink-faint)' }}>
+                      {item.productSku}
+                    </span>
+                  </Td>
+                  <Td>
+                    <input
+                      className={styles.qtyInput}
+                      type="number"
+                      min={1}
+                      value={item.quantity}
+                      onChange={(e) => updateItem(item.productId, { quantity: Math.max(1, Number(e.target.value) || 1) })}
+                    />
+                  </Td>
+                  <Td>
+                    <input
+                      className={styles.priceInput}
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      value={item.unitPrice}
+                      onChange={(e) => updateItem(item.productId, { unitPrice: Math.max(0, Number(e.target.value) || 0) })}
+                    />
+                  </Td>
+                  <Td numeric>{formatMoney(item.quantity * item.unitPrice)}</Td>
+                  <Td>
+                    <Button variant="ghost" size="sm" onClick={() => removeItem(item.productId)} aria-label="Убрать">
+                      <TrashIcon width={15} height={15} />
+                    </Button>
+                  </Td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        )}
+        {items.length > 0 && (
+          <div className={styles.totalRow}>
+            <span className={styles.totalLabel}>Итого:</span>
+            <span className={styles.totalValue}>{formatMoney(total)}</span>
+          </div>
+        )}
+      </div>
 
-      <div className={styles.formActions}>
-        <span className={styles.formTotal}>Итого: {formatMoney(total)}</span>
+      <div className={formStyles.formActions}>
         <Button type="button" variant="ghost" onClick={onCancel}>
           Отмена
         </Button>
-        <Button type="button" variant="primary" disabled={!canSubmit || isSaving} onClick={handleSubmit}>
+        <Button type="submit" variant="primary" disabled={isSaving}>
           {isSaving ? 'Создаём…' : 'Создать заказ'}
         </Button>
       </div>
-    </div>
+    </form>
   );
 }

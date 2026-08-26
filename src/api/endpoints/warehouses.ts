@@ -2,9 +2,16 @@ import { apiClient } from '../client';
 import type { ApiResponse, PagedRequest, PaginatedList } from '../types';
 import type { CreateWarehouseRequest, UpdateWarehouseRequest, WarehouseDto } from '@/types/domain';
 
-export async function listWarehouses(params: PagedRequest): Promise<PaginatedList<WarehouseDto>> {
+export async function listWarehouses(params: PagedRequest & { branchId?: string }): Promise<PaginatedList<WarehouseDto>> {
   const { data } = await apiClient.get<ApiResponse<PaginatedList<WarehouseDto>>>('/warehouses', { params });
   return data.data!;
+}
+
+export async function listAllWarehouses(branchId?: string): Promise<WarehouseDto[]> {
+  const { data } = await apiClient.get<ApiResponse<PaginatedList<WarehouseDto>>>('/warehouses', {
+    params: { pageNumber: 1, pageSize: 100, branchId },
+  });
+  return data.data?.items ?? [];
 }
 
 export async function getWarehouse(id: string): Promise<WarehouseDto> {

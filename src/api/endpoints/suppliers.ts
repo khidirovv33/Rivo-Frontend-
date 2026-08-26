@@ -7,6 +7,13 @@ export async function listSuppliers(params: PagedRequest): Promise<PaginatedList
   return data.data!;
 }
 
+export async function listAllSuppliers(): Promise<SupplierDto[]> {
+  const { data } = await apiClient.get<ApiResponse<PaginatedList<SupplierDto>>>('/suppliers', {
+    params: { pageNumber: 1, pageSize: 100 },
+  });
+  return data.data?.items ?? [];
+}
+
 export async function getSupplier(id: string): Promise<SupplierDto> {
   const { data } = await apiClient.get<ApiResponse<SupplierDto>>(`/suppliers/${id}`);
   return data.data!;

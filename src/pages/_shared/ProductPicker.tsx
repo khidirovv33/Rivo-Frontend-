@@ -3,12 +3,15 @@ import { useQuery } from '@tanstack/react-query';
 import { TextField } from '@/components';
 import { SearchIcon } from '@/components/icons';
 import * as productsApi from '@/api/endpoints/products';
-import { formatMoney } from '@/lib/format';
 import type { ProductDto } from '@/types/domain';
 import styles from './ProductPicker.module.css';
 
-/** Простой автокомплит для строчного добавления товара в заказ/приёмку/перемещение/ревизию — без вариаций. */
-export function ProductPicker({ onPick }: { onPick: (product: ProductDto) => void }) {
+interface ProductPickerProps {
+  onPick: (product: ProductDto) => void;
+  placeholder?: string;
+}
+
+export function ProductPicker({ onPick, placeholder }: ProductPickerProps) {
   const [term, setTerm] = useState('');
   const [debounced, setDebounced] = useState('');
   const [open, setOpen] = useState(false);
@@ -45,8 +48,8 @@ export function ProductPicker({ onPick }: { onPick: (product: ProductDto) => voi
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
       <TextField
-        label="Добавить товар"
-        placeholder="Название или SKU…"
+        label="Найти товар"
+        placeholder={placeholder ?? 'Название или SKU…'}
         value={term}
         onChange={(e) => {
           setTerm(e.target.value);
@@ -64,12 +67,8 @@ export function ProductPicker({ onPick }: { onPick: (product: ProductDto) => voi
           )}
           {results?.items.map((product) => (
             <div key={product.id} className={styles.resultRow} onClick={() => pick(product)}>
-              <span>
-                <span className={styles.resultName}>{product.name}</span>
-                <br />
-                <span className={[styles.resultMeta, 'font-data'].join(' ')}>{product.sku}</span>
-              </span>
-              <span className={[styles.resultPrice, 'font-data'].join(' ')}>{formatMoney(product.purchasePrice)}</span>
+              <span className={styles.resultName}>{product.name}</span>
+              <span className={[styles.resultMeta, 'font-data'].join(' ')}>{product.sku}</span>
             </div>
           ))}
         </div>

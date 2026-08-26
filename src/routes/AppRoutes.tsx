@@ -4,15 +4,15 @@ import { RedirectIfAuthenticated } from '@/auth/RedirectIfAuthenticated';
 import { AppLayout } from '@/layouts/AppLayout';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import { DashboardPage } from '@/pages/dashboard/DashboardPage';
-import { WarehousesPage } from '@/pages/warehouse/WarehousesPage';
-import { StockPage } from '@/pages/warehouse/StockPage';
-import { StockMovementsPage } from '@/pages/warehouse/StockMovementsPage';
-import { PurchaseOrdersPage } from '@/pages/purchases/PurchaseOrdersPage';
+import { WarehousePage } from '@/pages/warehouse/WarehousePage';
+import { WarehouseMovementsPage } from '@/pages/warehouse/WarehouseMovementsPage';
+import { SuppliersPage } from '@/pages/suppliers/SuppliersPage';
+import { PurchasesPage } from '@/pages/purchases/PurchasesPage';
 import { ReceivingPage } from '@/pages/purchases/ReceivingPage';
-import { PurchasesInvoicesPage } from '@/pages/purchases/PurchasesInvoicesPage';
-import { SuppliersPage } from '@/pages/purchases/SuppliersPage';
 import { TransfersPage } from '@/pages/transfers/TransfersPage';
-import { InventoriesPage } from '@/pages/inventory/InventoriesPage';
+import { InventoryPage } from '@/pages/inventory/InventoryPage';
+import { InventoryDetailPage } from '@/pages/inventory/InventoryDetailPage';
+import { BarcodesPage } from '@/pages/barcodes/BarcodesPage';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { RegisterPage } from '@/pages/auth/RegisterPage';
 import { ForgotPasswordPage } from '@/pages/auth/ForgotPasswordPage';
@@ -67,15 +67,15 @@ export function AppRoutes() {
         <Route path="/products/brands" element={<BrandsPage />} />
         <Route path="/customers" element={<CustomersPage />} />
         <Route path="/customers/loyalty-levels" element={<LoyaltyLevelsPage />} />
-        <Route path="/warehouse" element={<WarehousesPage />} />
-        <Route path="/warehouse/stock" element={<StockPage />} />
-        <Route path="/warehouse/movements" element={<StockMovementsPage />} />
-        <Route path="/purchases" element={<PurchaseOrdersPage />} />
+        <Route path="/warehouse" element={<WarehousePage />} />
+        <Route path="/warehouse/movements" element={<WarehouseMovementsPage />} />
+        <Route path="/suppliers" element={<SuppliersPage />} />
+        <Route path="/purchases" element={<PurchasesPage />} />
         <Route path="/purchases/receiving" element={<ReceivingPage />} />
-        <Route path="/purchases/invoices" element={<PurchasesInvoicesPage />} />
-        <Route path="/purchases/suppliers" element={<SuppliersPage />} />
         <Route path="/transfers" element={<TransfersPage />} />
-        <Route path="/inventory" element={<InventoriesPage />} />
+        <Route path="/inventory" element={<InventoryPage />} />
+        <Route path="/inventory/:id" element={<InventoryDetailPage />} />
+        <Route path="/barcodes" element={<BarcodesPage />} />
         <Route path="/finance" element={<FinancePage />} />
         <Route path="/finance/profit" element={<ProfitPage />} />
         <Route path="/reports" element={<ReportsPage />} />

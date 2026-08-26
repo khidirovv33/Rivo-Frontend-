@@ -2,9 +2,11 @@ import { apiClient } from '../client';
 import type { ApiResponse, PagedRequest, PaginatedList } from '../types';
 import type { CreateTransferRequest, TransferDto } from '@/types/domain';
 
-export async function listTransfers(
-  params: PagedRequest & { warehouseId?: string },
-): Promise<PaginatedList<TransferDto>> {
+export interface TransferQuery extends PagedRequest {
+  status?: number;
+}
+
+export async function listTransfers(params: TransferQuery): Promise<PaginatedList<TransferDto>> {
   const { data } = await apiClient.get<ApiResponse<PaginatedList<TransferDto>>>('/transfers', { params });
   return data.data!;
 }

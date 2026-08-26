@@ -1,11 +1,10 @@
 import { NavLink } from 'react-router-dom';
-import styles from './PurchasesTabs.module.css';
+import styles from '../products/CatalogTabs.module.css';
 
 const TABS = [
-  { to: '/purchases', label: 'Заказы поставщикам', end: true },
-  { to: '/purchases/receiving', label: 'Приёмки', end: false },
-  { to: '/purchases/invoices', label: 'Оплаты', end: false },
-  { to: '/purchases/suppliers', label: 'Поставщики', end: false },
+  { to: '/purchases', label: 'Закупки', end: true },
+  { to: '/purchases/receiving', label: 'Приём товара', end: false },
+  { to: '/suppliers', label: 'Поставщики', end: false },
 ];
 
 export function PurchasesTabs() {

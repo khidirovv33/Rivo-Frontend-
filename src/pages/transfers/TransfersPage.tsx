@@ -1,26 +1,26 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, EmptyState, ErrorState, Loader, Modal, PageHeader, Pagination, Table, Td, Th } from '@/components';
+import { Badge, Button, EmptyState, ErrorState, Loader, Modal, PageHeader, Pagination, Select, Table, Td, Th } from '@/components';
 import { PlusIcon } from '@/components/icons';
 import { usePermissions } from '@/auth/usePermissions';
 import * as transfersApi from '@/api/endpoints/transfers';
 import { extractErrorMessage } from '@/api/client';
-import { formatDate } from '@/lib/format';
-import { useWarehousesLookup } from '@/lib/lookups';
-import type { CreateTransferRequest } from '@/types/domain';
-import { TransferDetail } from './TransferDetail';
-import { TransferForm } from './TransferForm';
+import type { TransferDto } from '@/types/domain';
+import { TransferForm, type TransferSubmitValues } from './TransferForm';
+import { TransferDetailModal } from './TransferDetailModal';
 import { TRANSFER_STATUS_LABEL, TRANSFER_STATUS_TONE } from './labels';
+import styles from './TransfersPage.module.css';
 
 const PAGE_SIZE = 20;
 
 export function TransfersPage() {
   const { has } = usePermissions();
   const queryClient = useQueryClient();
+
   const [pageNumber, setPageNumber] = useState(1);
+  const [status, setStatus] = useState('');
   const [creating, setCreating] = useState(false);
-  const [viewingId, setViewingId] = useState<string | null>(null);
-  const { nameOf: warehouseName } = useWarehousesLookup();
+  const [viewing, setViewing] = useState<TransferDto | null>(null);
 
   const {
     data: page,
@@ -28,24 +28,30 @@ export function TransfersPage() {
     isError,
     refetch,
   } = useQuery({
-    queryKey: ['transfers', pageNumber],
-    queryFn: () => transfersApi.listTransfers({ pageNumber, pageSize: PAGE_SIZE }),
+    queryKey: ['transfers', pageNumber, status],
+    queryFn: () => transfersApi.listTransfers({ pageNumber, pageSize: PAGE_SIZE, status: status ? Number(status) : undefined }),
   });
 
   const createMutation = useMutation({
-    mutationFn: (payload: CreateTransferRequest) => transfersApi.createTransfer(payload),
+    mutationFn: (values: TransferSubmitValues) =>
+      transfersApi.createTransfer({
+        fromWarehouseId: values.fromWarehouseId,
+        toWarehouseId: values.toWarehouseId,
+        items: values.items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transfers'] });
       setCreating(false);
     },
   });
 
-  const canCreate = has('Inventory.Create');
+  const canCreate = has('Transfers.Create');
 
   return (
     <div>
       <PageHeader
         title="Перемещения"
+        subtitle="Перемещения товаров между складами и филиалами"
         actions={
           canCreate && (
             <Button variant="primary" onClick={() => setCreating(true)}>
@@ -55,6 +61,26 @@ export function TransfersPage() {
           )
         }
       />
+
+      <div className={styles.toolbar}>
+        <div className={styles.statusSelect}>
+          <Select
+            label="Статус"
+            value={status}
+            onChange={(e) => {
+              setStatus(e.target.value);
+              setPageNumber(1);
+            }}
+          >
+            <option value="">Все статусы</option>
+            {Object.entries(TRANSFER_STATUS_LABEL).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </Select>
+        </div>
+      </div>
 
       {isLoading && <Loader />}
       {isError && <ErrorState onRetry={() => refetch()} />}
@@ -68,7 +94,6 @@ export function TransfersPage() {
                 <Th>Номер</Th>
                 <Th>Откуда</Th>
                 <Th>Куда</Th>
-                <Th>Дата</Th>
                 <Th>Статус</Th>
                 <Th />
               </tr>
@@ -77,14 +102,13 @@ export function TransfersPage() {
               {page.items.map((transfer) => (
                 <tr key={transfer.id}>
                   <Td className="font-data">{transfer.transferNumber}</Td>
-                  <Td>{warehouseName(transfer.sourceWarehouseId)}</Td>
-                  <Td>{warehouseName(transfer.destinationWarehouseId)}</Td>
-                  <Td className="font-data">{formatDate(transfer.transferDate)}</Td>
+                  <Td>{transfer.fromWarehouseName}</Td>
+                  <Td>{transfer.toWarehouseName}</Td>
                   <Td>
                     <Badge tone={TRANSFER_STATUS_TONE[transfer.status]}>{TRANSFER_STATUS_LABEL[transfer.status]}</Badge>
                   </Td>
                   <Td>
-                    <Button variant="ghost" size="sm" onClick={() => setViewingId(transfer.id)}>
+                    <Button variant="ghost" size="sm" onClick={() => setViewing(transfer)}>
                       Просмотреть
                     </Button>
                   </Td>
@@ -104,16 +128,14 @@ export function TransfersPage() {
 
       <Modal open={creating} onClose={() => setCreating(false)} title="Новое перемещение">
         <TransferForm
-          onSubmit={(payload) => createMutation.mutate(payload)}
+          onSubmit={(values) => createMutation.mutate(values)}
           onCancel={() => setCreating(false)}
           isSaving={createMutation.isPending}
           serverError={createMutation.error ? extractErrorMessage(createMutation.error) : null}
         />
       </Modal>
 
-      <Modal open={viewingId !== null} onClose={() => setViewingId(null)} title="Перемещение">
-        {viewingId && <TransferDetail transferId={viewingId} onClose={() => setViewingId(null)} />}
-      </Modal>
+      <TransferDetailModal transfer={viewing} onClose={() => setViewing(null)} onUpdated={setViewing} />
     </div>
   );
 }

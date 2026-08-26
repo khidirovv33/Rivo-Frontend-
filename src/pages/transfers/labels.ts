@@ -2,8 +2,8 @@ import { TransferStatus } from '@/types/domain';
 
 export const TRANSFER_STATUS_LABEL: Record<number, string> = {
   [TransferStatus.Draft]: 'Черновик',
-  [TransferStatus.Pending]: 'На согласовании',
-  [TransferStatus.Approved]: 'Согласовано',
+  [TransferStatus.Pending]: 'Ожидает',
+  [TransferStatus.Approved]: 'Одобрено',
   [TransferStatus.Shipped]: 'Отправлено',
   [TransferStatus.Received]: 'Получено',
   [TransferStatus.Cancelled]: 'Отменено',

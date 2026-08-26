@@ -1,29 +1,32 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, EmptyState, ErrorState, Loader, Modal, PageHeader, Pagination, Table, Td, Th } from '@/components';
+import { Badge, Button, EmptyState, ErrorState, Loader, Modal, PageHeader, Pagination, Select, Table, Td, Th } from '@/components';
 import { PlusIcon } from '@/components/icons';
 import { usePermissions } from '@/auth/usePermissions';
 import * as purchaseOrdersApi from '@/api/endpoints/purchaseOrders';
 import { extractErrorMessage } from '@/api/client';
 import { formatDate, formatMoney } from '@/lib/format';
-import { useSuppliersLookup, useWarehousesLookup } from '@/lib/lookups';
-import type { CreatePurchaseOrderRequest } from '@/types/domain';
-import { PurchaseOrderDetail } from './PurchaseOrderDetail';
-import { PurchaseOrderForm } from './PurchaseOrderForm';
-import { PurchasesTabs } from './PurchasesTabs';
+import { useStoreBranch } from '@/store-context/useStoreBranch';
+import type { PurchaseOrderDto } from '@/types/domain';
+import { PurchaseOrderForm, type PurchaseOrderSubmitValues } from './PurchaseOrderForm';
+import { PurchaseOrderDetailModal } from './PurchaseOrderDetailModal';
 import { PURCHASE_ORDER_STATUS_LABEL, PURCHASE_ORDER_STATUS_TONE } from './labels';
+import { PurchasesTabs } from './PurchasesTabs';
+import styles from './PurchasesPage.module.css';
 
 const PAGE_SIZE = 20;
 
-export function PurchaseOrdersPage() {
+export function PurchasesPage() {
   const { has } = usePermissions();
+  const { currentBranch } = useStoreBranch();
   const queryClient = useQueryClient();
-  const [pageNumber, setPageNumber] = useState(1);
-  const [creating, setCreating] = useState(false);
-  const [viewingId, setViewingId] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-  const { nameOf: supplierName } = useSuppliersLookup();
-  const { nameOf: warehouseName } = useWarehousesLookup();
+  const [pageNumber, setPageNumber] = useState(1);
+  const [status, setStatus] = useState('');
+  const [creating, setCreating] = useState(false);
+  const [viewing, setViewing] = useState<PurchaseOrderDto | null>(null);
 
   const {
     data: page,
@@ -31,25 +34,37 @@ export function PurchaseOrdersPage() {
     isError,
     refetch,
   } = useQuery({
-    queryKey: ['purchase-orders', pageNumber],
-    queryFn: () => purchaseOrdersApi.listPurchaseOrders({ pageNumber, pageSize: PAGE_SIZE }),
+    queryKey: ['purchase-orders', pageNumber, status],
+    queryFn: () =>
+      purchaseOrdersApi.listPurchaseOrders({
+        pageNumber,
+        pageSize: PAGE_SIZE,
+        status: status ? Number(status) : undefined,
+      }),
   });
 
   const createMutation = useMutation({
-    mutationFn: (payload: CreatePurchaseOrderRequest) => purchaseOrdersApi.createPurchaseOrder(payload),
+    mutationFn: (values: PurchaseOrderSubmitValues) =>
+      purchaseOrdersApi.createPurchaseOrder({
+        supplierId: values.supplierId,
+        warehouseId: values.warehouseId,
+        expectedDate: values.expectedDate || undefined,
+        items: values.items.map((i) => ({ productId: i.productId, quantity: i.quantity, unitPrice: i.unitPrice })),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
       setCreating(false);
     },
   });
 
-  const canCreate = has('Inventory.Create');
+  const canCreate = has('Purchases.Create');
 
   return (
     <div>
       <PurchasesTabs />
       <PageHeader
-        title="Заказы поставщикам"
+        title="Закупки"
+        subtitle="Заказы поставщикам, история закупок и задолженность"
         actions={
           canCreate && (
             <Button variant="primary" onClick={() => setCreating(true)}>
@@ -59,6 +74,26 @@ export function PurchaseOrdersPage() {
           )
         }
       />
+
+      <div className={styles.toolbar}>
+        <div className={styles.statusSelect}>
+          <Select
+            label="Статус"
+            value={status}
+            onChange={(e) => {
+              setStatus(e.target.value);
+              setPageNumber(1);
+            }}
+          >
+            <option value="">Все статусы</option>
+            {Object.entries(PURCHASE_ORDER_STATUS_LABEL).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </Select>
+        </div>
+      </div>
 
       {isLoading && <Loader />}
       {isError && <ErrorState onRetry={() => refetch()} />}
@@ -75,6 +110,7 @@ export function PurchaseOrdersPage() {
                 <Th>Дата</Th>
                 <Th>Статус</Th>
                 <Th>Сумма</Th>
+                <Th>Долг</Th>
                 <Th />
               </tr>
             </thead>
@@ -82,17 +118,18 @@ export function PurchaseOrdersPage() {
               {page.items.map((order) => (
                 <tr key={order.id}>
                   <Td className="font-data">{order.orderNumber}</Td>
-                  <Td>{supplierName(order.supplierId)}</Td>
-                  <Td>{warehouseName(order.warehouseId)}</Td>
-                  <Td className="font-data">{formatDate(order.orderDate)}</Td>
+                  <Td>{order.supplierName}</Td>
+                  <Td>{order.warehouseName}</Td>
+                  <Td className="font-data">{formatDate(order.createdAt)}</Td>
                   <Td>
                     <Badge tone={PURCHASE_ORDER_STATUS_TONE[order.status]}>
                       {PURCHASE_ORDER_STATUS_LABEL[order.status]}
                     </Badge>
                   </Td>
-                  <Td numeric className="font-data">{formatMoney(order.totalAmount)}</Td>
+                  <Td numeric>{formatMoney(order.totalAmount)}</Td>
+                  <Td numeric>{order.debtAmount > 0 ? formatMoney(order.debtAmount) : '—'}</Td>
                   <Td>
-                    <Button variant="ghost" size="sm" onClick={() => setViewingId(order.id)}>
+                    <Button variant="ghost" size="sm" onClick={() => setViewing(order)}>
                       Просмотреть
                     </Button>
                   </Td>
@@ -112,16 +149,20 @@ export function PurchaseOrdersPage() {
 
       <Modal open={creating} onClose={() => setCreating(false)} title="Новый заказ поставщику">
         <PurchaseOrderForm
-          onSubmit={(payload) => createMutation.mutate(payload)}
+          branchId={currentBranch?.id}
+          onSubmit={(values) => createMutation.mutate(values)}
           onCancel={() => setCreating(false)}
           isSaving={createMutation.isPending}
           serverError={createMutation.error ? extractErrorMessage(createMutation.error) : null}
         />
       </Modal>
 
-      <Modal open={viewingId !== null} onClose={() => setViewingId(null)} title="Заказ поставщику">
-        {viewingId && <PurchaseOrderDetail orderId={viewingId} onClose={() => setViewingId(null)} />}
-      </Modal>
+      <PurchaseOrderDetailModal
+        order={viewing}
+        onClose={() => setViewing(null)}
+        onReceive={(order) => navigate(`/purchases/receiving?orderId=${order.id}`)}
+        onUpdated={setViewing}
+      />
     </div>
   );
 }

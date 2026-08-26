@@ -187,6 +187,34 @@ export const LogOutIcon = createIcon(
   </>,
 );
 
+export const SuppliersIcon = createIcon(
+  <>
+    <path d="M3 21V9l7-5 7 5v12" />
+    <path d="M3 21h17" />
+    <path d="M10 21v-6h4v6" />
+    <path d="M8 12h.01M12 12h.01" />
+  </>,
+);
+
+export const BarcodeIcon = createIcon(
+  <>
+    <path d="M3 4v16" />
+    <path d="M7 4v16" />
+    <path d="M10 4v16" />
+    <path d="M14 4v16" />
+    <path d="M17 4v16" />
+    <path d="M21 4v16" />
+  </>,
+);
+
+export const PrinterIcon = createIcon(
+  <>
+    <path d="M6 9V3h12v6" />
+    <rect x="4" y="9" width="16" height="8" rx="1" />
+    <path d="M6 14h12v7H6z" />
+  </>,
+);
+
 export const StoreIcon = createIcon(
   <>
     <path d="M3 9l1.5-5h15L21 9" />

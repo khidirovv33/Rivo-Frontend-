@@ -1,68 +1,79 @@
 import { useState } from 'react';
-import { Button, Select, Table, Td, TextField, Th } from '@/components';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useQuery } from '@tanstack/react-query';
+import { Button, EmptyState, Select, Table, Td, Th } from '@/components';
 import { TrashIcon } from '@/components/icons';
-import { useWarehousesLookup } from '@/lib/lookups';
+import * as warehousesApi from '@/api/endpoints/warehouses';
+import { transferHeaderSchema, type TransferHeaderValues } from '@/lib/validation/inventory';
 import { ProductPicker } from '../_shared/ProductPicker';
-import type { CreateTransferRequest } from '@/types/domain';
-import styles from '../_shared/CrudForm.module.css';
+import type { ProductDto } from '@/types/domain';
+import formStyles from '../_shared/CrudForm.module.css';
+import styles from '../purchases/PurchaseOrderForm.module.css';
 
-interface DraftLine {
+interface DraftItem {
   productId: string;
   productName: string;
+  productSku: string;
   quantity: number;
 }
 
-export function TransferForm({
-  onSubmit,
-  onCancel,
-  isSaving,
-  serverError,
-}: {
-  onSubmit: (payload: CreateTransferRequest) => void;
+export interface TransferSubmitValues extends TransferHeaderValues {
+  items: DraftItem[];
+}
+
+interface TransferFormProps {
+  onSubmit: (values: TransferSubmitValues) => void;
   onCancel: () => void;
   isSaving: boolean;
   serverError: string | null;
-}) {
-  const { warehouses } = useWarehousesLookup();
-  const [sourceWarehouseId, setSourceWarehouseId] = useState(warehouses[0]?.id ?? '');
-  const [destinationWarehouseId, setDestinationWarehouseId] = useState(warehouses[1]?.id ?? warehouses[0]?.id ?? '');
-  const [notes, setNotes] = useState('');
-  const [lines, setLines] = useState<DraftLine[]>([]);
+}
 
-  const canSubmit =
-    Boolean(sourceWarehouseId) &&
-    Boolean(destinationWarehouseId) &&
-    sourceWarehouseId !== destinationWarehouseId &&
-    lines.length > 0;
+export function TransferForm({ onSubmit, onCancel, isSaving, serverError }: TransferFormProps) {
+  const [items, setItems] = useState<DraftItem[]>([]);
+  const [itemsError, setItemsError] = useState<string | null>(null);
 
-  function addLine(productId: string, productName: string) {
-    if (lines.some((l) => l.productId === productId)) return;
-    setLines((prev) => [...prev, { productId, productName, quantity: 1 }]);
-  }
+  const { data: warehouses = [] } = useQuery({ queryKey: ['warehouses-all'], queryFn: () => warehousesApi.listAllWarehouses() });
 
-  function updateLine(productId: string, quantity: number) {
-    setLines((prev) => prev.map((l) => (l.productId === productId ? { ...l, quantity } : l)));
-  }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<TransferHeaderValues>({
+    resolver: zodResolver(transferHeaderSchema),
+    defaultValues: { fromWarehouseId: '', toWarehouseId: '' },
+  });
 
-  function removeLine(productId: string) {
-    setLines((prev) => prev.filter((l) => l.productId !== productId));
-  }
-
-  function handleSubmit() {
-    if (!canSubmit) return;
-    onSubmit({
-      sourceWarehouseId,
-      destinationWarehouseId,
-      notes: notes || undefined,
-      items: lines.map((l) => ({ productId: l.productId, quantity: l.quantity })),
+  function addProduct(product: ProductDto) {
+    setItems((prev) => {
+      if (prev.some((i) => i.productId === product.id)) return prev;
+      return [...prev, { productId: product.id, productName: product.name, productSku: product.sku, quantity: 1 }];
     });
+    setItemsError(null);
+  }
+
+  function updateItem(productId: string, quantity: number) {
+    setItems((prev) => prev.map((i) => (i.productId === productId ? { ...i, quantity } : i)));
+  }
+
+  function removeItem(productId: string) {
+    setItems((prev) => prev.filter((i) => i.productId !== productId));
+  }
+
+  function submit(values: TransferHeaderValues) {
+    if (items.length === 0) {
+      setItemsError('Добавьте хотя бы одну позицию');
+      return;
+    }
+    onSubmit({ ...values, items });
   }
 
   return (
-    <div className={styles.form}>
-      {serverError && <div className={styles.error}>{serverError}</div>}
+    <form className={formStyles.form} onSubmit={handleSubmit(submit)} noValidate>
+      {serverError && <div className={formStyles.error}>{serverError}</div>}
 
-      <Select label="Склад-отправитель" value={sourceWarehouseId} onChange={(e) => setSourceWarehouseId(e.target.value)}>
+      <Select label="Склад-отправитель" error={errors.fromWarehouseId?.message} {...register('fromWarehouseId')}>
+        <option value="">Выберите склад</option>
         {warehouses.map((w) => (
           <option key={w.id} value={w.id}>
             {w.name}
@@ -70,67 +81,69 @@ export function TransferForm({
         ))}
       </Select>
 
-      <Select
-        label="Склад-получатель"
-        value={destinationWarehouseId}
-        onChange={(e) => setDestinationWarehouseId(e.target.value)}
-      >
+      <Select label="Склад-получатель" error={errors.toWarehouseId?.message} {...register('toWarehouseId')}>
+        <option value="">Выберите склад</option>
         {warehouses.map((w) => (
           <option key={w.id} value={w.id}>
             {w.name}
           </option>
         ))}
       </Select>
-      {sourceWarehouseId === destinationWarehouseId && (
-        <div className={styles.error}>Склад-отправитель и склад-получатель должны отличаться.</div>
-      )}
 
-      <TextField label="Заметки (необязательно)" value={notes} onChange={(e) => setNotes(e.target.value)} />
-
-      <ProductPicker onPick={(product) => addLine(product.id, product.name)} />
-
-      {lines.length > 0 && (
-        <Table>
-          <thead>
-            <tr>
-              <Th>Товар</Th>
-              <Th>Кол-во</Th>
-              <Th />
-            </tr>
-          </thead>
-          <tbody>
-            {lines.map((line) => (
-              <tr key={line.productId}>
-                <Td>{line.productName}</Td>
-                <Td>
-                  <input
-                    type="number"
-                    min={1}
-                    step="1"
-                    value={line.quantity}
-                    onChange={(e) => updateLine(line.productId, Math.max(1, Number(e.target.value) || 1))}
-                    className={styles.inlineNumber}
-                  />
-                </Td>
-                <Td>
-                  <Button variant="ghost" size="sm" onClick={() => removeLine(line.productId)} aria-label="Удалить">
-                    <TrashIcon width={15} height={15} />
-                  </Button>
-                </Td>
+      <div className={styles.itemsSection}>
+        <span className={styles.itemsLabel}>Позиции перемещения</span>
+        <ProductPicker onPick={addProduct} />
+        {itemsError && <div className={formStyles.error}>{itemsError}</div>}
+        {items.length === 0 ? (
+          <EmptyState message="Позиции не добавлены." />
+        ) : (
+          <Table>
+            <thead>
+              <tr>
+                <Th>Товар</Th>
+                <Th>Кол-во</Th>
+                <Th />
               </tr>
-            ))}
-          </tbody>
-        </Table>
-      )}
+            </thead>
+            <tbody>
+              {items.map((item) => (
+                <tr key={item.productId}>
+                  <Td>
+                    {item.productName}
+                    <br />
+                    <span className="font-data" style={{ fontSize: 11, color: 'var(--ink-faint)' }}>
+                      {item.productSku}
+                    </span>
+                  </Td>
+                  <Td>
+                    <input
+                      className={styles.qtyInput}
+                      type="number"
+                      min={1}
+                      value={item.quantity}
+                      onChange={(e) => updateItem(item.productId, Math.max(1, Number(e.target.value) || 1))}
+                    />
+                  </Td>
+                  <Td>
+                    <Button variant="ghost" size="sm" onClick={() => removeItem(item.productId)} aria-label="Убрать">
+                      <TrashIcon width={15} height={15} />
+                    </Button>
+                  </Td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        )}
+      </div>
 
-      <div className={styles.formActions}>
+      <div className={formStyles.formActions}>
         <Button type="button" variant="ghost" onClick={onCancel}>
           Отмена
         </Button>
-        <Button type="button" variant="primary" disabled={!canSubmit || isSaving} onClick={handleSubmit}>
+        <Button type="submit" variant="primary" disabled={isSaving}>
           {isSaving ? 'Создаём…' : 'Создать перемещение'}
         </Button>
       </div>
-    </div>
+    </form>
   );
 }

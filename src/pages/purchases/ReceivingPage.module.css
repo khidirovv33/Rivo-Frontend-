@@ -1,0 +1,27 @@
+.orderPicker {
+  max-width: 420px;
+  margin-bottom: 18px;
+}
+
+.qtyInput {
+  width: 90px;
+  padding: 6px 8px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  font-family: 'Courier New', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  background: var(--paper-raised);
+  color: var(--ink);
+}
+
+.qtyInput:disabled {
+  color: var(--ink-faint);
+  background: var(--paper);
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 14px 0;
+}

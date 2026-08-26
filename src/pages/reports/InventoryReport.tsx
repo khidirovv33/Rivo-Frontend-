@@ -14,7 +14,7 @@ export function InventoryReport() {
   });
 
   const items = data?.items ?? [];
-  const totalSystem = items.reduce((sum, s) => sum + s.systemQuantity, 0);
+  const totalSystem = items.reduce((sum, s) => sum + s.quantity, 0);
   const totalAvailable = items.reduce((sum, s) => sum + s.availableQuantity, 0);
 
   return (
@@ -55,7 +55,7 @@ export function InventoryReport() {
                   <tr key={stock.id}>
                     <Td>{stock.productName}</Td>
                     <Td>{stock.warehouseName}</Td>
-                    <Td numeric>{stock.systemQuantity}</Td>
+                    <Td numeric>{stock.quantity}</Td>
                     <Td numeric>{stock.reservedQuantity}</Td>
                     <Td numeric>{stock.availableQuantity}</Td>
                   </tr>
