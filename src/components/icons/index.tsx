@@ -169,6 +169,16 @@ export const MenuIcon = createIcon(
   </>,
 );
 
+export const ManualSaleIcon = createIcon(
+  <>
+    <rect x="4" y="2" width="16" height="20" rx="2" />
+    <path d="M9 7h6" />
+    <path d="M9 11h6" />
+    <path d="M9 15h3" />
+    <path d="M15 15l1.5 1.5L20 13" />
+  </>,
+);
+
 export const CheckIcon = createIcon(<path d="M20 6L9 17l-5-5" />);
 
 export const AlertIcon = createIcon(

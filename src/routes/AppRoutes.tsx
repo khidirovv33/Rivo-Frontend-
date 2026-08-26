@@ -22,6 +22,7 @@ import { CategoriesPage } from '@/pages/products/CategoriesPage';
 import { BrandsPage } from '@/pages/products/BrandsPage';
 import { StoresPage } from '@/pages/settings/StoresPage';
 import { POSPage } from '@/pages/pos/POSPage';
+import { ManualSalePage } from '@/pages/manual-sale/ManualSalePage';
 import { SalesPage } from '@/pages/sales/SalesPage';
 import { CustomersPage } from '@/pages/customers/CustomersPage';
 import { LoyaltyLevelsPage } from '@/pages/customers/LoyaltyLevelsPage';
@@ -61,6 +62,7 @@ export function AppRoutes() {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/pos" element={<POSPage />} />
+        <Route path="/manual-sale" element={<ManualSalePage />} />
         <Route path="/sales" element={<SalesPage />} />
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/products/categories" element={<CategoriesPage />} />

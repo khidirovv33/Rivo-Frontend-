@@ -10,6 +10,7 @@ import {
   EmployeesIcon,
   FinanceIcon,
   InventoryIcon,
+  ManualSaleIcon,
   PosIcon,
   ProductsIcon,
   ProfileIcon,
@@ -55,6 +56,7 @@ export const NAV_ENTRIES: NavEntryConfig[] = [
       icon: PosIcon,
       items: [
         { to: '/pos', label: 'Касса', icon: PosIcon, permission: 'Sales.Create' },
+        { to: '/manual-sale', label: 'Ручная продажа', icon: ManualSaleIcon, permission: 'Sales.Create' },
         { to: '/sales', label: 'Продажи', icon: SalesIcon, permission: 'Sales.Read' },
         { to: '/customers', label: 'Клиенты', icon: CustomersIcon, permission: 'Customers.Read' },
       ],
