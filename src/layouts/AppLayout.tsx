@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AssistantWidget, Sidebar, Topbar, type StoreOption } from '@/components';
 import { useAuth } from '@/auth/useAuth';
 import { usePermissions } from '@/auth/usePermissions';
@@ -8,12 +9,13 @@ import { getVisibleNavEntries } from '@/routes/navItems';
 import styles from './AppLayout.module.css';
 
 export function AppLayout() {
+  const { t } = useTranslation();
   const { user, logout } = useAuth();
   const { has } = usePermissions();
   const { stores, isLoading, currentStore, currentBranch, selectBranch } = useStoreBranch();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
-  const entries = getVisibleNavEntries(has);
+  const entries = getVisibleNavEntries(has, t);
   const storeOptions: StoreOption[] = stores.map((s) => ({
     id: s.id,
     name: s.name,
@@ -24,8 +26,8 @@ export function AppLayout() {
     currentStore && currentBranch
       ? `${currentStore.name} — ${currentBranch.name}`
       : isLoading
-        ? 'Загрузка…'
-        : 'Магазин не выбран';
+        ? t('topbar.loading')
+        : t('topbar.storeNotSelected');
 
   return (
     <div className={styles.shell}>

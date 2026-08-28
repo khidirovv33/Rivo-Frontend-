@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, TextField } from '@/components';
 import { useAuth } from '@/auth/useAuth';
@@ -9,6 +10,7 @@ import { loginSchema, type LoginFormValues } from '@/lib/validation/auth';
 import styles from './AuthForm.module.css';
 
 export function LoginPage() {
+  const { t } = useTranslation();
   const { login } = useAuth();
   const navigate = useNavigate();
   const [serverError, setServerError] = useState<string | null>(null);
@@ -31,35 +33,35 @@ export function LoginPage() {
 
   return (
     <div>
-      <h2 className={styles.title}>Вход</h2>
-      <p className={styles.subtitle}>Войдите, чтобы продолжить работу</p>
+      <h2 className={styles.title}>{t('auth.login.title')}</h2>
+      <p className={styles.subtitle}>{t('auth.login.subtitle')}</p>
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
         {serverError && <div className={styles.error}>{serverError}</div>}
         <TextField
-          label="Email"
+          label={t('auth.login.email')}
           type="email"
           autoComplete="email"
           error={errors.email?.message}
           {...register('email')}
         />
         <TextField
-          label="Пароль"
+          label={t('auth.login.password')}
           type="password"
           autoComplete="current-password"
           error={errors.password?.message}
           {...register('password')}
         />
         <Button type="submit" variant="primary" className={styles.submit} disabled={isSubmitting}>
-          {isSubmitting ? 'Входим…' : 'Войти'}
+          {isSubmitting ? t('auth.login.submitting') : t('auth.login.submit')}
         </Button>
       </form>
       <div className={styles.footer}>
         <Link className={styles.link} to="/forgot-password">
-          Забыли пароль?
+          {t('auth.login.forgotPassword')}
         </Link>
       </div>
       <div className={styles.footer}>
-        Нет компании? <Link className={styles.link} to="/register">Зарегистрировать</Link>
+        {t('auth.login.noAccount')} <Link className={styles.link} to="/register">{t('auth.login.registerLink')}</Link>
       </div>
     </div>
   );

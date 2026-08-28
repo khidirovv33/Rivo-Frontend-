@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, TextField } from '@/components';
 import { useAuth } from '@/auth/useAuth';
@@ -9,6 +10,7 @@ import { registerSchema, type RegisterFormValues } from '@/lib/validation/auth';
 import styles from './AuthForm.module.css';
 
 export function RegisterPage() {
+  const { t } = useTranslation();
   const { register: registerCompany } = useAuth();
   const navigate = useNavigate();
   const [serverError, setServerError] = useState<string | null>(null);
@@ -31,33 +33,33 @@ export function RegisterPage() {
 
   return (
     <div>
-      <h2 className={styles.title}>Регистрация компании</h2>
-      <p className={styles.subtitle}>Создайте аккаунт владельца и начните работу с Rivo</p>
+      <h2 className={styles.title}>{t('auth.register.title')}</h2>
+      <p className={styles.subtitle}>{t('auth.register.subtitle')}</p>
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
         {serverError && <div className={styles.error}>{serverError}</div>}
-        <TextField label="Название компании" error={errors.companyName?.message} {...register('companyName')} />
-        <TextField label="Ваше имя" error={errors.fullName?.message} {...register('fullName')} />
+        <TextField label={t('auth.register.companyName')} error={errors.companyName?.message} {...register('companyName')} />
+        <TextField label={t('auth.register.fullName')} error={errors.fullName?.message} {...register('fullName')} />
         <TextField
-          label="Email"
+          label={t('auth.register.email')}
           type="email"
           autoComplete="email"
           error={errors.email?.message}
           {...register('email')}
         />
-        <TextField label="Телефон (необязательно)" error={errors.phoneNumber?.message} {...register('phoneNumber')} />
+        <TextField label={t('auth.register.phone')} error={errors.phoneNumber?.message} {...register('phoneNumber')} />
         <TextField
-          label="Пароль"
+          label={t('auth.register.password')}
           type="password"
           autoComplete="new-password"
           error={errors.password?.message}
           {...register('password')}
         />
         <Button type="submit" variant="primary" className={styles.submit} disabled={isSubmitting}>
-          {isSubmitting ? 'Создаём…' : 'Зарегистрироваться'}
+          {isSubmitting ? t('auth.register.submitting') : t('auth.register.submit')}
         </Button>
       </form>
       <div className={styles.footer}>
-        Уже есть аккаунт? <Link className={styles.link} to="/login">Войти</Link>
+        {t('auth.register.haveAccount')} <Link className={styles.link} to="/login">{t('auth.register.loginLink')}</Link>
       </div>
     </div>
   );
