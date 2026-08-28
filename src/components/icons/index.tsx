@@ -268,3 +268,32 @@ export const SendIcon = createIcon(
     <path d="M22 2l-7 20-4-9-9-4 20-7z" />
   </>,
 );
+
+export const MicIcon = createIcon(
+  <>
+    <rect x="9" y="2" width="6" height="12" rx="3" />
+    <path d="M5 10v1a7 7 0 0 0 14 0v-1" />
+    <path d="M12 18v4" />
+    <path d="M8 22h8" />
+  </>,
+);
+
+export const MicOffIcon = createIcon(
+  <>
+    <path d="M3 3l18 18" />
+    <path d="M9 5a3 3 0 0 1 6 0v6a3 3 0 0 1-.4 1.5" />
+    <path d="M15 15a3 3 0 0 1-4.6-1" />
+    <path d="M5 10v1a7 7 0 0 0 11 5.7" />
+    <path d="M19 11v-1" />
+    <path d="M12 18v4" />
+    <path d="M8 22h8" />
+  </>,
+);
+
+export const VolumeIcon = createIcon(
+  <>
+    <path d="M4 9v6h4l5 5V4L8 9H4z" />
+    <path d="M16.5 8.5a5 5 0 0 1 0 7" />
+    <path d="M19 6a9 9 0 0 1 0 12" />
+  </>,
+);

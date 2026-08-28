@@ -1,0 +1,100 @@
+{
+  "nav": {
+    "dashboard": "Дурнамо",
+    "sales": "Фурӯш",
+    "pos": "Касса",
+    "manualSale": "Фурӯши дастӣ",
+    "salesHistory": "Фурӯшҳо",
+    "customers": "Мизоҷон",
+    "products": "Молҳо",
+    "warehouse": "Анбор",
+    "suppliers": "Таъминкунандагон",
+    "purchases": "Хариду фурӯш",
+    "transfers": "Интиқолҳо",
+    "inventory": "Ревизия",
+    "barcodes": "Штрихкодҳо",
+    "finance": "Молия",
+    "reports": "Ҳисоботҳо",
+    "analytics": "Таҳлил",
+    "management": "Идоракунӣ",
+    "employees": "Кормандон",
+    "roles": "Нақшҳо",
+    "stores": "Мағозаҳо",
+    "auditLog": "Журнал",
+    "notifications": "Хабарнома",
+    "profile": "Профил"
+  },
+  "topbar": {
+    "openMenu": "Кушодани меню",
+    "noStores": "Мағоза нест",
+    "storeNotSelected": "Мағоза интихоб нашудааст",
+    "loading": "Боргирӣ…",
+    "logout": "Баромадан",
+    "language": "Забон"
+  },
+  "auth": {
+    "login": {
+      "title": "Вуруд",
+      "subtitle": "Барои идома додани кор ворид шавед",
+      "email": "Email",
+      "password": "Парол",
+      "submit": "Ворид шудан",
+      "submitting": "Дар ҳоли вуруд…",
+      "forgotPassword": "Паролро фаромӯш кардед?",
+      "noAccount": "Ширкат надоред?",
+      "registerLink": "Бақайдгирӣ"
+    },
+    "register": {
+      "title": "Бақайдгирии ширкат",
+      "subtitle": "Аккаунти соҳибро эҷод кунед ва бо Rivo кор кардан гиред",
+      "companyName": "Номи ширкат",
+      "fullName": "Номи шумо",
+      "email": "Email",
+      "phone": "Телефон (ихтиёрӣ)",
+      "password": "Парол",
+      "submit": "Бақайд гирифтан",
+      "submitting": "Эҷод шуда истодааст…",
+      "haveAccount": "Аллакай аккаунт доред?",
+      "loginLink": "Ворид шудан"
+    },
+    "forgotPassword": {
+      "title": "Барқарор кардани парол",
+      "subtitle": "Email-ро нависед — пайванди барқарорсозиро мефиристем",
+      "success": "Агар чунин email қайд шуда бошад, ба он мактуб бо пайванди барқарор кардани парол фиристода шуд.",
+      "email": "Email",
+      "submit": "Фиристодани пайванд",
+      "submitting": "Фиристода истодааст…",
+      "backToLogin": "Бозгашт ба вуруд"
+    },
+    "resetPassword": {
+      "title": "Пароли нав",
+      "subtitle": "Email, коди аз мактуб ва пароли навро ворид кунед",
+      "success": "Парол тағйир ёфт. Ҳоло метавонед бо пароли нав ворид шавед.",
+      "email": "Email",
+      "token": "Коди аз мактуб",
+      "newPassword": "Пароли нав",
+      "submit": "Нигоҳ доштани парол",
+      "submitting": "Нигоҳ дошта истодааст…",
+      "goToLogin": "Ба саҳифаи вуруд",
+      "backToLogin": "Бозгашт ба вуруд"
+    }
+  },
+  "dashboard": {
+    "title": "Дурнамо",
+    "salesToday": "Фурӯши имрӯз",
+    "orders": "Фармоишҳо",
+    "averageCheck": "Чеки миёна",
+    "lowStock": "Молҳо кам мешаванд",
+    "lowStockUnit": "позиция",
+    "lowStockHint": "дар {{count}} анбор",
+    "weeklySales": "Фурӯш дар ҳафта",
+    "weeklySalesUnit": "сум, рӯз ба рӯз",
+    "topProducts": "Молҳои беҳтарин",
+    "topProductsUnit": "дона имрӯз",
+    "topProductsUnitShort": "дона",
+    "noSalesToday": "Имрӯз ҳанӯз фурӯш набудааст."
+  },
+  "common": {
+    "loading": "Боргирӣ…"
+  }
+}

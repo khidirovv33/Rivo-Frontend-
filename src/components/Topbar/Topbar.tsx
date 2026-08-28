@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChevronDownIcon, LogOutIcon, MenuIcon, StoreIcon } from '../icons';
+import { LanguageSwitcher } from '../LanguageSwitcher/LanguageSwitcher';
 import styles from './Topbar.module.css';
 
 export interface StoreOption {
@@ -31,6 +33,7 @@ export function Topbar({
   onLogout,
   onMenuClick,
 }: TopbarProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -47,7 +50,7 @@ export function Topbar({
 
   return (
     <header className={styles.topbar}>
-      <button type="button" className={styles.menuButton} onClick={onMenuClick} aria-label="Открыть меню">
+      <button type="button" className={styles.menuButton} onClick={onMenuClick} aria-label={t('topbar.openMenu')}>
         <MenuIcon width={20} height={20} />
       </button>
       <div className={styles.switcher} ref={menuRef}>
@@ -58,7 +61,7 @@ export function Topbar({
         </button>
         {open && (
           <div className={styles.menu}>
-            {stores.length === 0 && <div className={styles.menuItem}>Нет магазинов</div>}
+            {stores.length === 0 && <div className={styles.menuItem}>{t('topbar.noStores')}</div>}
             {stores.map((store) => (
               <div key={store.id}>
                 <div className={styles.menuGroupLabel}>{store.name}</div>
@@ -83,13 +86,14 @@ export function Topbar({
           </div>
         )}
       </div>
+      <LanguageSwitcher />
       <div className={styles.divider} />
       <div className={styles.user}>
         <div className={styles.userInfo}>
           <span className={styles.userName}>{userName}</span>
           <span className={styles.userRole}>{roleName}</span>
         </div>
-        <button type="button" className={styles.logoutButton} onClick={onLogout} title="Выйти">
+        <button type="button" className={styles.logoutButton} onClick={onLogout} title={t('topbar.logout')}>
           <LogOutIcon width={16} height={16} />
         </button>
       </div>

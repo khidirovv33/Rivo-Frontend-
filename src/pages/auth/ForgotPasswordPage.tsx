@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Button, TextField } from '@/components';
 import { forgotPassword } from '@/api/endpoints/auth';
@@ -9,6 +10,7 @@ import { forgotPasswordSchema, type ForgotPasswordFormValues } from '@/lib/valid
 import styles from './AuthForm.module.css';
 
 export function ForgotPasswordPage() {
+  const { t } = useTranslation();
   const [serverError, setServerError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
 
@@ -30,30 +32,28 @@ export function ForgotPasswordPage() {
 
   return (
     <div>
-      <h2 className={styles.title}>Восстановление пароля</h2>
-      <p className={styles.subtitle}>Укажите email — вышлем ссылку для сброса пароля</p>
+      <h2 className={styles.title}>{t('auth.forgotPassword.title')}</h2>
+      <p className={styles.subtitle}>{t('auth.forgotPassword.subtitle')}</p>
       {sent ? (
-        <div className={styles.success}>
-          Если такой email зарегистрирован, на него отправлено письмо со ссылкой для сброса пароля.
-        </div>
+        <div className={styles.success}>{t('auth.forgotPassword.success')}</div>
       ) : (
         <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
           {serverError && <div className={styles.error}>{serverError}</div>}
           <TextField
-            label="Email"
+            label={t('auth.forgotPassword.email')}
             type="email"
             autoComplete="email"
             error={errors.email?.message}
             {...register('email')}
           />
           <Button type="submit" variant="primary" className={styles.submit} disabled={isSubmitting}>
-            {isSubmitting ? 'Отправляем…' : 'Отправить ссылку'}
+            {isSubmitting ? t('auth.forgotPassword.submitting') : t('auth.forgotPassword.submit')}
           </Button>
         </form>
       )}
       <div className={styles.footer}>
         <Link className={styles.link} to="/login">
-          Вернуться ко входу
+          {t('auth.forgotPassword.backToLogin')}
         </Link>
       </div>
     </div>

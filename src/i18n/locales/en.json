@@ -1,0 +1,100 @@
+{
+  "nav": {
+    "dashboard": "Overview",
+    "sales": "Sales",
+    "pos": "Register",
+    "manualSale": "Manual sale",
+    "salesHistory": "Sales",
+    "customers": "Customers",
+    "products": "Products",
+    "warehouse": "Warehouse",
+    "suppliers": "Suppliers",
+    "purchases": "Purchases",
+    "transfers": "Transfers",
+    "inventory": "Stocktakes",
+    "barcodes": "Barcodes",
+    "finance": "Finance",
+    "reports": "Reports",
+    "analytics": "Analytics",
+    "management": "Management",
+    "employees": "Employees",
+    "roles": "Roles",
+    "stores": "Stores",
+    "auditLog": "Audit log",
+    "notifications": "Notifications",
+    "profile": "Profile"
+  },
+  "topbar": {
+    "openMenu": "Open menu",
+    "noStores": "No stores",
+    "storeNotSelected": "No store selected",
+    "loading": "Loading…",
+    "logout": "Log out",
+    "language": "Language"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Sign in to continue",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "No company yet?",
+      "registerLink": "Register"
+    },
+    "register": {
+      "title": "Register your company",
+      "subtitle": "Create an owner account and start working with Rivo",
+      "companyName": "Company name",
+      "fullName": "Your name",
+      "email": "Email",
+      "phone": "Phone (optional)",
+      "password": "Password",
+      "submit": "Register",
+      "submitting": "Creating…",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Sign in"
+    },
+    "forgotPassword": {
+      "title": "Password recovery",
+      "subtitle": "Enter your email — we'll send a reset link",
+      "success": "If that email is registered, a password reset link has been sent to it.",
+      "email": "Email",
+      "submit": "Send link",
+      "submitting": "Sending…",
+      "backToLogin": "Back to sign in"
+    },
+    "resetPassword": {
+      "title": "New password",
+      "subtitle": "Enter your email, the code from the email, and a new password",
+      "success": "Password changed. You can now sign in with the new password.",
+      "email": "Email",
+      "token": "Code from the email",
+      "newPassword": "New password",
+      "submit": "Save password",
+      "submitting": "Saving…",
+      "goToLogin": "Go to sign in",
+      "backToLogin": "Back to sign in"
+    }
+  },
+  "dashboard": {
+    "title": "Overview",
+    "salesToday": "Sales today",
+    "orders": "Orders",
+    "averageCheck": "Average check",
+    "lowStock": "Low stock",
+    "lowStockUnit": "items",
+    "lowStockHint": "across {{count}} warehouses",
+    "weeklySales": "Sales this week",
+    "weeklySalesUnit": "UZS, by day",
+    "topProducts": "Top products",
+    "topProductsUnit": "units today",
+    "topProductsUnitShort": "pcs",
+    "noSalesToday": "No sales yet today."
+  },
+  "common": {
+    "loading": "Loading…"
+  }
+}
