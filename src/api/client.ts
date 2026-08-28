@@ -1,4 +1,5 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import i18n from '@/i18n';
 import { clearTokens, getAccessToken, getRefreshToken, setTokens } from '@/auth/tokenStore';
 import type { ApiResponse } from './types';
 
@@ -59,6 +60,9 @@ apiClient.interceptors.request.use((config) => {
   if (token) {
     config.headers.set('Authorization', `Bearer ${token}`);
   }
+  // Бэкенд локализует сообщения (ошибки, ответы AI-ассистента) по этому заголовку — держим его
+  // синхронным с переключателем языка в интерфейсе, а не с языком браузера.
+  config.headers.set('Accept-Language', i18n.language ?? 'ru');
   return config;
 });
 

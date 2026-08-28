@@ -14,3 +14,4 @@ export { Select } from './Select/Select';
 export { Modal } from './Modal/Modal';
 export { Pagination } from './Pagination/Pagination';
 export { AssistantWidget } from './AssistantWidget/AssistantWidget';
+export { LanguageSwitcher } from './LanguageSwitcher/LanguageSwitcher';

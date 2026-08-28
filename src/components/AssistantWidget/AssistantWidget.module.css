@@ -76,6 +76,12 @@
   color: var(--ink-faint);
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .closeButton {
   display: inline-flex;
   align-items: center;
@@ -91,6 +97,12 @@
 
 .closeButton:hover {
   border-color: var(--accent);
+  color: var(--accent);
+}
+
+.toggleActive {
+  border-color: var(--accent);
+  background: var(--accent-soft);
   color: var(--accent);
 }
 
@@ -230,4 +242,40 @@
 .sendButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.micButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius);
+  border: 1px solid var(--rule-strong);
+  background: var(--paper-raised);
+  color: var(--ink-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.micButton:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.micButtonActive {
+  border-color: var(--critical);
+  background: var(--critical-soft);
+  color: var(--critical);
+  animation: micPulse 1.4s infinite ease-in-out;
+}
+
+@keyframes micPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(162, 59, 46, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(162, 59, 46, 0);
+  }
 }

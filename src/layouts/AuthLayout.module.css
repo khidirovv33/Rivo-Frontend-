@@ -5,6 +5,13 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
+  position: relative;
+}
+
+.languageSwitcher {
+  position: absolute;
+  top: 24px;
+  right: 24px;
 }
 
 .brand {

@@ -1,0 +1,100 @@
+{
+  "nav": {
+    "dashboard": "Обзор",
+    "sales": "Продажи",
+    "pos": "Касса",
+    "manualSale": "Ручная продажа",
+    "salesHistory": "Продажи",
+    "customers": "Клиенты",
+    "products": "Товары",
+    "warehouse": "Склад",
+    "suppliers": "Поставщики",
+    "purchases": "Закупки",
+    "transfers": "Перемещения",
+    "inventory": "Ревизии",
+    "barcodes": "Штрихкоды",
+    "finance": "Финансы",
+    "reports": "Отчёты",
+    "analytics": "Аналитика",
+    "management": "Управление",
+    "employees": "Сотрудники",
+    "roles": "Роли",
+    "stores": "Магазины",
+    "auditLog": "Журнал",
+    "notifications": "Уведомления",
+    "profile": "Профиль"
+  },
+  "topbar": {
+    "openMenu": "Открыть меню",
+    "noStores": "Нет магазинов",
+    "storeNotSelected": "Магазин не выбран",
+    "loading": "Загрузка…",
+    "logout": "Выйти",
+    "language": "Язык"
+  },
+  "auth": {
+    "login": {
+      "title": "Вход",
+      "subtitle": "Войдите, чтобы продолжить работу",
+      "email": "Email",
+      "password": "Пароль",
+      "submit": "Войти",
+      "submitting": "Входим…",
+      "forgotPassword": "Забыли пароль?",
+      "noAccount": "Нет компании?",
+      "registerLink": "Зарегистрировать"
+    },
+    "register": {
+      "title": "Регистрация компании",
+      "subtitle": "Создайте аккаунт владельца и начните работу с Rivo",
+      "companyName": "Название компании",
+      "fullName": "Ваше имя",
+      "email": "Email",
+      "phone": "Телефон (необязательно)",
+      "password": "Пароль",
+      "submit": "Зарегистрироваться",
+      "submitting": "Создаём…",
+      "haveAccount": "Уже есть аккаунт?",
+      "loginLink": "Войти"
+    },
+    "forgotPassword": {
+      "title": "Восстановление пароля",
+      "subtitle": "Укажите email — вышлем ссылку для сброса пароля",
+      "success": "Если такой email зарегистрирован, на него отправлено письмо со ссылкой для сброса пароля.",
+      "email": "Email",
+      "submit": "Отправить ссылку",
+      "submitting": "Отправляем…",
+      "backToLogin": "Вернуться ко входу"
+    },
+    "resetPassword": {
+      "title": "Новый пароль",
+      "subtitle": "Введите email, код из письма и новый пароль",
+      "success": "Пароль изменён. Теперь можно войти с новым паролем.",
+      "email": "Email",
+      "token": "Код из письма",
+      "newPassword": "Новый пароль",
+      "submit": "Сохранить пароль",
+      "submitting": "Сохраняем…",
+      "goToLogin": "К странице входа",
+      "backToLogin": "Вернуться ко входу"
+    }
+  },
+  "dashboard": {
+    "title": "Обзор",
+    "salesToday": "Продажи сегодня",
+    "orders": "Заказы",
+    "averageCheck": "Средний чек",
+    "lowStock": "Товары заканчиваются",
+    "lowStockUnit": "позиций",
+    "lowStockHint": "по {{count}} складам",
+    "weeklySales": "Продажи за неделю",
+    "weeklySalesUnit": "сум, по дням",
+    "topProducts": "Топ товаров",
+    "topProductsUnit": "шт. сегодня",
+    "topProductsUnitShort": "шт",
+    "noSalesToday": "Сегодня продаж пока не было."
+  },
+  "common": {
+    "loading": "Загрузка…"
+  }
+}

@@ -46,36 +46,37 @@ export type NavEntryConfig = { kind: 'item'; item: NavItemConfig } | { kind: 'gr
 // Warehouses.*/Suppliers.*/Purchases.*/Transfers.* НЕТ — вся зона целиком гейтится через
 // Inventory.Read/Inventory.Create/Inventory.Approve, как и было написано в
 // Rivo_Frontend_Dev2_Inventory_Operations.md (там это не только про ревизии).
+// label — ключ перевода (см. src/i18n/locales/*.json → "nav.*"), переводится в getVisibleNavEntries.
 export const NAV_ENTRIES: NavEntryConfig[] = [
-  { kind: 'item', item: { to: '/dashboard', label: 'Обзор', icon: DashboardIcon } },
+  { kind: 'item', item: { to: '/dashboard', label: 'nav.dashboard', icon: DashboardIcon } },
   {
     kind: 'group',
     group: {
       id: 'sales',
-      label: 'Продажи',
+      label: 'nav.sales',
       icon: PosIcon,
       items: [
-        { to: '/pos', label: 'Касса', icon: PosIcon, permission: 'Sales.Create' },
-        { to: '/manual-sale', label: 'Ручная продажа', icon: ManualSaleIcon, permission: 'Sales.Create' },
-        { to: '/sales', label: 'Продажи', icon: SalesIcon, permission: 'Sales.Read' },
-        { to: '/customers', label: 'Клиенты', icon: CustomersIcon, permission: 'Customers.Read' },
+        { to: '/pos', label: 'nav.pos', icon: PosIcon, permission: 'Sales.Create' },
+        { to: '/manual-sale', label: 'nav.manualSale', icon: ManualSaleIcon, permission: 'Sales.Create' },
+        { to: '/sales', label: 'nav.salesHistory', icon: SalesIcon, permission: 'Sales.Read' },
+        { to: '/customers', label: 'nav.customers', icon: CustomersIcon, permission: 'Customers.Read' },
       ],
     },
   },
-  { kind: 'item', item: { to: '/products', label: 'Товары', icon: ProductsIcon, permission: 'Products.Read' } },
+  { kind: 'item', item: { to: '/products', label: 'nav.products', icon: ProductsIcon, permission: 'Products.Read' } },
   {
     kind: 'group',
     group: {
       id: 'warehouse',
-      label: 'Склад',
+      label: 'nav.warehouse',
       icon: WarehouseIcon,
       items: [
-        { to: '/warehouse', label: 'Склад', icon: WarehouseIcon, permission: 'Inventory.Read' },
-        { to: '/suppliers', label: 'Поставщики', icon: SuppliersIcon, permission: 'Inventory.Read' },
-        { to: '/purchases', label: 'Закупки', icon: PurchasesIcon, permission: 'Inventory.Read' },
-        { to: '/transfers', label: 'Перемещения', icon: TransfersIcon, permission: 'Inventory.Read' },
-        { to: '/inventory', label: 'Ревизии', icon: InventoryIcon, permission: 'Inventory.Read' },
-        { to: '/barcodes', label: 'Штрихкоды', icon: BarcodeIcon, permission: 'Products.Read' },
+        { to: '/warehouse', label: 'nav.warehouse', icon: WarehouseIcon, permission: 'Inventory.Read' },
+        { to: '/suppliers', label: 'nav.suppliers', icon: SuppliersIcon, permission: 'Inventory.Read' },
+        { to: '/purchases', label: 'nav.purchases', icon: PurchasesIcon, permission: 'Inventory.Read' },
+        { to: '/transfers', label: 'nav.transfers', icon: TransfersIcon, permission: 'Inventory.Read' },
+        { to: '/inventory', label: 'nav.inventory', icon: InventoryIcon, permission: 'Inventory.Read' },
+        { to: '/barcodes', label: 'nav.barcodes', icon: BarcodeIcon, permission: 'Products.Read' },
       ],
     },
   },
@@ -83,31 +84,31 @@ export const NAV_ENTRIES: NavEntryConfig[] = [
     kind: 'group',
     group: {
       id: 'finance',
-      label: 'Финансы',
+      label: 'nav.finance',
       icon: FinanceIcon,
       items: [
-        { to: '/finance', label: 'Финансы', icon: FinanceIcon },
-        { to: '/reports', label: 'Отчёты', icon: ReportsIcon },
+        { to: '/finance', label: 'nav.finance', icon: FinanceIcon },
+        { to: '/reports', label: 'nav.reports', icon: ReportsIcon },
       ],
     },
   },
-  { kind: 'item', item: { to: '/analytics', label: 'Аналитика', icon: AnalyticsIcon } },
+  { kind: 'item', item: { to: '/analytics', label: 'nav.analytics', icon: AnalyticsIcon } },
   {
     kind: 'group',
     group: {
       id: 'management',
-      label: 'Управление',
+      label: 'nav.management',
       icon: SettingsIcon,
       items: [
-        { to: '/employees', label: 'Сотрудники', icon: EmployeesIcon, permission: 'Users.Read' },
-        { to: '/roles', label: 'Роли', icon: RolesIcon, permission: 'Roles.Read' },
-        { to: '/settings/stores', label: 'Магазины', icon: SettingsIcon, permission: 'Stores.Read' },
+        { to: '/employees', label: 'nav.employees', icon: EmployeesIcon, permission: 'Users.Read' },
+        { to: '/roles', label: 'nav.roles', icon: RolesIcon, permission: 'Roles.Read' },
+        { to: '/settings/stores', label: 'nav.stores', icon: SettingsIcon, permission: 'Stores.Read' },
       ],
     },
   },
-  { kind: 'item', item: { to: '/audit-log', label: 'Журнал', icon: AuditIcon } },
-  { kind: 'item', item: { to: '/notifications', label: 'Уведомления', icon: BellIcon } },
-  { kind: 'item', item: { to: '/profile', label: 'Профиль', icon: ProfileIcon } },
+  { kind: 'item', item: { to: '/audit-log', label: 'nav.auditLog', icon: AuditIcon } },
+  { kind: 'item', item: { to: '/notifications', label: 'nav.notifications', icon: BellIcon } },
+  { kind: 'item', item: { to: '/profile', label: 'nav.profile', icon: ProfileIcon } },
 ];
 
 export type VisibleNavEntry =
@@ -120,17 +121,28 @@ export type VisibleNavEntry =
       items: SidebarItem[];
     };
 
-export function getVisibleNavEntries(has: (permission: string) => boolean): VisibleNavEntry[] {
+export function getVisibleNavEntries(
+  has: (permission: string) => boolean,
+  t: (key: string) => string,
+): VisibleNavEntry[] {
   const visible: VisibleNavEntry[] = [];
   for (const entry of NAV_ENTRIES) {
     if (entry.kind === 'item') {
       if (!entry.item.permission || has(entry.item.permission)) {
-        visible.push({ kind: 'item', item: entry.item });
+        visible.push({ kind: 'item', item: { ...entry.item, label: t(entry.item.label) } });
       }
     } else {
-      const items = entry.group.items.filter((item) => !item.permission || has(item.permission));
+      const items = entry.group.items
+        .filter((item) => !item.permission || has(item.permission))
+        .map((item) => ({ ...item, label: t(item.label) }));
       if (items.length > 0) {
-        visible.push({ kind: 'group', id: entry.group.id, label: entry.group.label, icon: entry.group.icon, items });
+        visible.push({
+          kind: 'group',
+          id: entry.group.id,
+          label: t(entry.group.label),
+          icon: entry.group.icon,
+          items,
+        });
       }
     }
   }
