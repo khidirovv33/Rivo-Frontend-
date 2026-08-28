@@ -444,21 +444,29 @@ export interface DashboardDto {
 }
 
 // ---- Warehouses / Stock ----
-// DTO-поля — лучшее приближение к бэкенду по FRONTEND_TZ.md и Rivo_Frontend_Dev2_Inventory_Operations.md
-// (точный контракт стока/движений/приёма/перемещений/ревизий не выгружен в этот репозиторий —
-// см. заметку в PR о сверке с Rivo.Application/{Warehouses,Stock,Transfers,Inventories}/Dtos/*.cs).
+// DTO-поля сверены напрямую по GET /swagger/v1/swagger.json запущенного бэкенда (localhost:5173,
+// 2026-08-24) — актуальны для той версии API. Бэкенд НЕ денормализует связанные имена
+// (productName/warehouseName/supplierName и т.п.) ни в один из DTO этой зоны — их нужно
+// резолвить на фронте (см. useProductLookup и локальные Map по warehouses/suppliers).
+// Статусные enum'ы (PurchaseOrderStatus/ReceivingStatus/TransferStatus/InventoryStatus/
+// StockMovementType) на бэкенде отданы как голые int (JsonStringEnumConverter не зарегистрирован),
+// без имён в Swagger — только количество значений. Значения ниже — порядок восстановлен по
+// набору доступных action-эндпоинтов и естественному жизненному циклу; сверить с реальными
+// данными и поправить при расхождении.
 
 export interface WarehouseDto {
   id: string;
-  branchId: string;
-  branchName: string;
+  storeId: string;
+  branchId: string | null;
   name: string;
   address: string | null;
-  isDefault: boolean;
+  isActive: boolean;
+  createdAt: string;
 }
 
 export interface CreateWarehouseRequest {
-  branchId: string;
+  storeId: string;
+  branchId?: string;
   name: string;
   address?: string;
 }
@@ -466,22 +474,22 @@ export interface CreateWarehouseRequest {
 export interface UpdateWarehouseRequest {
   name: string;
   address?: string;
-  isDefault: boolean;
+  isActive: boolean;
 }
 
 export interface StockDto {
   id: string;
   warehouseId: string;
-  warehouseName: string;
   productId: string;
-  productName: string;
-  productSku: string;
   productVariationId: string | null;
-  quantity: number;
+  systemQuantity: number;
   reservedQuantity: number;
   availableQuantity: number;
 }
 
+// Бэкенд отдаёт 8 значений (StockMovementType enum, Swagger без имён) — доку известны только 7
+// смысловых видов операций (приход/расход/продажа/возврат/списание/корректировка/резервирование),
+// восьмое здесь предположительно "перемещение" (Transfer), т.к. transfers тоже двигают сток.
 export const StockMovementType = {
   Receipt: 1,
   Issue: 2,
@@ -490,30 +498,38 @@ export const StockMovementType = {
   WriteOff: 5,
   Adjustment: 6,
   Reservation: 7,
+  Transfer: 8,
 } as const;
 export type StockMovementType = (typeof StockMovementType)[keyof typeof StockMovementType];
 
 export interface StockMovementDto {
   id: string;
   warehouseId: string;
-  warehouseName: string;
   productId: string;
-  productName: string;
-  productSku: string;
+  productVariationId: string | null;
   type: StockMovementType;
   quantity: number;
   quantityBefore: number;
   quantityAfter: number;
+  reason: string | null;
   referenceType: string | null;
   referenceId: string | null;
-  note: string | null;
+  createdBy: string | null;
   createdAt: string;
 }
 
-// ---- Suppliers ----
+export interface CreateStockMovementRequest {
+  warehouseId: string;
+  productId: string;
+  productVariationId?: string;
+  type: StockMovementType;
+  quantity: number;
+  reason?: string;
+  referenceType?: string;
+  referenceId?: string;
+}
 
-export const SupplierStatus = { Active: 1, Inactive: 2 } as const;
-export type SupplierStatus = (typeof SupplierStatus)[keyof typeof SupplierStatus];
+// ---- Suppliers ----
 
 export interface SupplierDto {
   id: string;
@@ -522,7 +538,10 @@ export interface SupplierDto {
   phone: string | null;
   email: string | null;
   address: string | null;
-  status: SupplierStatus;
+  notes: string | null;
+  isActive: boolean;
+  outstandingDebt: number;
+  createdAt: string;
 }
 
 export interface CreateSupplierRequest {
@@ -531,48 +550,48 @@ export interface CreateSupplierRequest {
   phone?: string;
   email?: string;
   address?: string;
+  notes?: string;
 }
 
 export interface UpdateSupplierRequest extends CreateSupplierRequest {
-  status: SupplierStatus;
+  isActive: boolean;
 }
 
-// ---- Purchase orders / Receiving ----
+// ---- Purchase orders / Purchases (payments+debt) / Receiving ----
+// "purchase-orders" (заказ поставщику, документооборот) и "purchases" (факт закупки с
+// оплатами/задолженностью, создаётся при приёмке — см. PurchaseDto.receivingId) — два разных
+// ресурса на бэкенде, не путать.
 
 export const PurchaseOrderStatus = {
   Draft: 1,
   Sent: 2,
-  PartiallyReceived: 3,
-  Received: 4,
-  Cancelled: 5,
+  Confirmed: 3,
+  PartiallyReceived: 4,
+  Received: 5,
+  Cancelled: 6,
 } as const;
 export type PurchaseOrderStatus = (typeof PurchaseOrderStatus)[keyof typeof PurchaseOrderStatus];
 
 export interface PurchaseOrderItemDto {
   id: string;
   productId: string;
-  productName: string;
-  productSku: string;
   productVariationId: string | null;
-  quantityOrdered: number;
-  quantityReceived: number;
-  unitPrice: number;
-  lineTotal: number;
+  quantity: number;
+  unitCost: number;
+  receivedQuantity: number;
+  remainingQuantity: number;
 }
 
 export interface PurchaseOrderDto {
   id: string;
-  orderNumber: string;
   supplierId: string;
-  supplierName: string;
   warehouseId: string;
-  warehouseName: string;
+  orderNumber: string;
   status: PurchaseOrderStatus;
-  totalAmount: number;
-  paidAmount: number;
-  debtAmount: number;
+  orderDate: string;
   expectedDate: string | null;
-  createdAt: string;
+  notes: string | null;
+  totalAmount: number;
   items: PurchaseOrderItemDto[];
 }
 
@@ -580,40 +599,65 @@ export interface CreatePurchaseOrderItemRequest {
   productId: string;
   productVariationId?: string;
   quantity: number;
-  unitPrice: number;
+  unitCost: number;
 }
 
 export interface CreatePurchaseOrderRequest {
   supplierId: string;
   warehouseId: string;
   expectedDate?: string;
+  notes?: string;
   items: CreatePurchaseOrderItemRequest[];
 }
+
+export interface PurchaseDto {
+  id: string;
+  supplierId: string;
+  purchaseOrderId: string;
+  receivingId: string;
+  purchaseDate: string;
+  totalAmount: number;
+  paidAmount: number;
+  outstandingAmount: number;
+  notes: string | null;
+}
+
+export interface RecordPaymentRequest {
+  amount: number;
+  notes?: string;
+}
+
+export const ReceivingStatus = { Draft: 1, Completed: 2, Cancelled: 3 } as const;
+export type ReceivingStatus = (typeof ReceivingStatus)[keyof typeof ReceivingStatus];
 
 export interface ReceivingItemRequest {
   purchaseOrderItemId: string;
   quantityReceived: number;
+  unitCost?: number;
 }
 
 export interface CreateReceivingRequest {
   purchaseOrderId: string;
+  notes?: string;
   items: ReceivingItemRequest[];
-  note?: string;
 }
 
 export interface ReceivingItemDto {
+  id: string;
   purchaseOrderItemId: string;
-  productName: string;
+  productId: string;
+  productVariationId: string | null;
   quantityReceived: number;
+  unitCost: number;
 }
 
 export interface ReceivingDto {
   id: string;
   purchaseOrderId: string;
-  purchaseOrderNumber: string;
-  receivedByUserId: string;
-  note: string | null;
-  createdAt: string;
+  warehouseId: string;
+  receivingDate: string;
+  status: ReceivingStatus;
+  notes: string | null;
   items: ReceivingItemDto[];
 }
 
@@ -632,21 +676,18 @@ export type TransferStatus = (typeof TransferStatus)[keyof typeof TransferStatus
 export interface TransferItemDto {
   id: string;
   productId: string;
-  productName: string;
-  productSku: string;
   productVariationId: string | null;
   quantity: number;
 }
 
 export interface TransferDto {
   id: string;
+  sourceWarehouseId: string;
+  destinationWarehouseId: string;
   transferNumber: string;
-  fromWarehouseId: string;
-  fromWarehouseName: string;
-  toWarehouseId: string;
-  toWarehouseName: string;
   status: TransferStatus;
-  createdAt: string;
+  transferDate: string;
+  notes: string | null;
   items: TransferItemDto[];
 }
 
@@ -657,55 +698,88 @@ export interface CreateTransferItemRequest {
 }
 
 export interface CreateTransferRequest {
-  fromWarehouseId: string;
-  toWarehouseId: string;
+  sourceWarehouseId: string;
+  destinationWarehouseId: string;
+  notes?: string;
   items: CreateTransferItemRequest[];
 }
 
 // ---- Inventories (ревизии) ----
+// Позиции ревизии заполняются сканированием (POST .../items/scan с абсолютным actualQuantity —
+// повторный скан того же товара перезаписывает количество, не суммирует), а не произвольным PUT.
 
-export const InventoryStatus = { InProgress: 1, Completed: 2, Cancelled: 3 } as const;
+export const InventoryStatus = { InProgress: 1, Completed: 2, Approved: 3, Cancelled: 4 } as const;
 export type InventoryStatus = (typeof InventoryStatus)[keyof typeof InventoryStatus];
 
 export interface InventoryItemDto {
   id: string;
+  inventoryId: string;
   productId: string;
-  productName: string;
-  productSku: string;
   productVariationId: string | null;
   systemQuantity: number;
-  actualQuantity: number | null;
-  difference: number | null;
+  actualQuantity: number;
+  difference: number;
+  unitCost: number;
+  differenceCost: number;
 }
 
 export interface InventoryDto {
   id: string;
   warehouseId: string;
-  warehouseName: string;
+  inventoryNumber: string;
   status: InventoryStatus;
-  createdByUserId: string;
-  createdAt: string;
+  responsibleUserId: string;
+  startedAt: string;
   completedAt: string | null;
+  approvedAt: string | null;
+  notes: string | null;
   items: InventoryItemDto[];
+  shortageQuantity: number;
+  surplusQuantity: number;
+  shortageCost: number;
+  surplusCost: number;
 }
 
 export interface CreateInventoryRequest {
   warehouseId: string;
+  notes?: string;
 }
 
-export interface UpdateInventoryItemRequest {
+export interface ScanInventoryItemRequest {
+  productId: string;
+  productVariationId?: string;
   actualQuantity: number;
+  unitCost?: number;
 }
 
 // ---- Barcodes ----
 
+// Значения не подписаны в Swagger (голый int enum из 3 вариантов) — вероятно EAN-13/Code128/QR.
+export const BarcodeType = { Type1: 1, Type2: 2, Type3: 3 } as const;
+export type BarcodeType = (typeof BarcodeType)[keyof typeof BarcodeType];
+
+export interface BarcodeDto {
+  id: string;
+  productId: string;
+  productVariationId: string | null;
+  code: string;
+  type: BarcodeType;
+  isPrimary: boolean;
+}
+
 export interface GenerateBarcodeRequest {
   productId: string;
   productVariationId?: string;
+  type: BarcodeType;
+  isPrimary: boolean;
 }
 
-export interface GenerateBarcodeResult {
-  barcode: string;
+export interface RegisterBarcodeRequest {
+  productId: string;
+  productVariationId?: string;
+  code: string;
+  type: BarcodeType;
+  isPrimary: boolean;
 }
 
 // ---- AI-помощник (проксирует чат к OpenAI на бэкенде — ключ туда не долетает) ----

@@ -1,30 +1,62 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Card, PageHeader } from '@/components';
 import { PrinterIcon } from '@/components/icons';
 import * as barcodesApi from '@/api/endpoints/barcodes';
 import { extractErrorMessage } from '@/api/client';
 import { formatMoney } from '@/lib/format';
 import { ProductPicker } from '../_shared/ProductPicker';
-import type { ProductDto } from '@/types/domain';
+import { BarcodeType, type ProductDto } from '@/types/domain';
 import styles from './BarcodesPage.module.css';
 import formStyles from '../_shared/CrudForm.module.css';
 
 export function BarcodesPage() {
+  const queryClient = useQueryClient();
   const [product, setProduct] = useState<ProductDto | null>(null);
-  const [barcode, setBarcode] = useState<string | null>(null);
   const [printing, setPrinting] = useState(false);
+  const [labelUrl, setLabelUrl] = useState<string | null>(null);
+
+  const { data: existing, isLoading: isLoadingExisting } = useQuery({
+    queryKey: ['product-barcodes', product?.id],
+    queryFn: () => barcodesApi.listProductBarcodes(product!.id, { pageSize: 20 }),
+    enabled: Boolean(product),
+  });
+  const barcode = existing?.items.find((b) => b.isPrimary) ?? existing?.items[0] ?? null;
 
   const generateMutation = useMutation({
-    mutationFn: () => barcodesApi.generateBarcode({ productId: product!.id }),
-    onSuccess: (result) => setBarcode(result.barcode),
+    // Тип штрихкода (BarcodeType) не подписан в Swagger — берём первое значение по умолчанию.
+    mutationFn: () => barcodesApi.generateBarcode({ productId: product!.id, type: BarcodeType.Type1, isPrimary: true }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['product-barcodes', product?.id] }),
   });
 
   function pickProduct(p: ProductDto) {
     setProduct(p);
-    setBarcode(p.barcode);
   }
+
+  // GET .../label требует авторизации — обычный <img src> не приложит JWT, поэтому грузим
+  // картинку как blob через apiClient и подставляем object URL. Освобождаем предыдущий URL
+  // при смене штрихкода/размонтировании, чтобы не текла память.
+  useEffect(() => {
+    if (!barcode) {
+      setLabelUrl(null);
+      return;
+    }
+    let cancelled = false;
+    let objectUrl: string | null = null;
+    barcodesApi.fetchBarcodeLabelUrl(barcode.id).then((url) => {
+      if (cancelled) {
+        URL.revokeObjectURL(url);
+        return;
+      }
+      objectUrl = url;
+      setLabelUrl(url);
+    });
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [barcode]);
 
   useEffect(() => {
     if (!printing) return;
@@ -57,7 +89,7 @@ export function BarcodesPage() {
                   </div>
                 )}
 
-                {!barcode && (
+                {!isLoadingExisting && !barcode && (
                   <div className={styles.actions}>
                     <Button
                       variant="primary"
@@ -78,11 +110,11 @@ export function BarcodesPage() {
                 <div className={styles.label}>
                   <span className={styles.labelProductName}>{product?.name}</span>
                   <span className={styles.labelPrice}>{formatMoney(product?.sellingPrice ?? 0)}</span>
-                  <img className={styles.barcodeImage} src={barcodesApi.barcodeImageUrl(barcode)} alt={barcode} />
-                  <span className={styles.barcodeValue}>{barcode}</span>
+                  {labelUrl && <img className={styles.barcodeImage} src={labelUrl} alt={barcode.code} />}
+                  <span className={styles.barcodeValue}>{barcode.code}</span>
                 </div>
                 <div className={styles.actions}>
-                  <Button variant="secondary" onClick={() => setPrinting(true)}>
+                  <Button variant="secondary" onClick={() => setPrinting(true)} disabled={!labelUrl}>
                     <PrinterIcon width={16} height={16} />
                     Печать этикетки
                   </Button>
@@ -94,13 +126,14 @@ export function BarcodesPage() {
       </Card>
 
       {printing &&
+        barcode &&
         createPortal(
           <div className={styles.printOverlay}>
             <div className={styles.label}>
               <span className={styles.labelProductName}>{product?.name}</span>
               <span className={styles.labelPrice}>{formatMoney(product?.sellingPrice ?? 0)}</span>
-              {barcode && <img className={styles.barcodeImage} src={barcodesApi.barcodeImageUrl(barcode)} alt={barcode} />}
-              <span className={styles.barcodeValue}>{barcode}</span>
+              {labelUrl && <img className={styles.barcodeImage} src={labelUrl} alt={barcode.code} />}
+              <span className={styles.barcodeValue}>{barcode.code}</span>
             </div>
           </div>,
           document.body,

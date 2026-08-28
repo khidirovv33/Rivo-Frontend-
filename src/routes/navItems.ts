@@ -41,11 +41,11 @@ interface NavGroupConfig {
 // в том порядке, в котором должны идти в меню.
 export type NavEntryConfig = { kind: 'item'; item: NavItemConfig } | { kind: 'group'; group: NavGroupConfig };
 
-// Права зоны Dev2 (Warehouses/Suppliers/Purchases/Transfers/Inventory) в каталоге
-// `GET /api/permissions` явно задокументированы только для ревизий (`Inventory.*`) —
-// см. Rivo_Frontend_Dev2_Inventory_Operations.md. Остальные строки ниже (Suppliers.*,
-// Purchases.*, Transfers.*, Warehouses.*) — по аналогии с существующим паттерном
-// `{Модуль}.{Действие}`; сверить с реальным каталогом прав и поправить при расхождении.
+// Права зоны Dev2 (Warehouses/Stock/Suppliers/Purchases/Transfers/Inventory) подтверждены по
+// реальному каталогу прав (роль Owner на локальном бэкенде, 2026-08-24): отдельных
+// Warehouses.*/Suppliers.*/Purchases.*/Transfers.* НЕТ — вся зона целиком гейтится через
+// Inventory.Read/Inventory.Create/Inventory.Approve, как и было написано в
+// Rivo_Frontend_Dev2_Inventory_Operations.md (там это не только про ревизии).
 export const NAV_ENTRIES: NavEntryConfig[] = [
   { kind: 'item', item: { to: '/dashboard', label: 'Обзор', icon: DashboardIcon } },
   {
@@ -70,10 +70,10 @@ export const NAV_ENTRIES: NavEntryConfig[] = [
       label: 'Склад',
       icon: WarehouseIcon,
       items: [
-        { to: '/warehouse', label: 'Склад', icon: WarehouseIcon, permission: 'Warehouses.Read' },
-        { to: '/suppliers', label: 'Поставщики', icon: SuppliersIcon, permission: 'Suppliers.Read' },
-        { to: '/purchases', label: 'Закупки', icon: PurchasesIcon, permission: 'Purchases.Read' },
-        { to: '/transfers', label: 'Перемещения', icon: TransfersIcon, permission: 'Transfers.Read' },
+        { to: '/warehouse', label: 'Склад', icon: WarehouseIcon, permission: 'Inventory.Read' },
+        { to: '/suppliers', label: 'Поставщики', icon: SuppliersIcon, permission: 'Inventory.Read' },
+        { to: '/purchases', label: 'Закупки', icon: PurchasesIcon, permission: 'Inventory.Read' },
+        { to: '/transfers', label: 'Перемещения', icon: TransfersIcon, permission: 'Inventory.Read' },
         { to: '/inventory', label: 'Ревизии', icon: InventoryIcon, permission: 'Inventory.Read' },
         { to: '/barcodes', label: 'Штрихкоды', icon: BarcodeIcon, permission: 'Products.Read' },
       ],

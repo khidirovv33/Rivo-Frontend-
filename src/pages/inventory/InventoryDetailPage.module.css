@@ -27,3 +27,21 @@
   gap: 8px;
   margin-top: 18px;
 }
+
+.statRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.scanRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.scanPicker {
+  flex: 1;
+}

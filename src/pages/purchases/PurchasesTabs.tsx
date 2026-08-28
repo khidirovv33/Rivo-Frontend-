@@ -4,6 +4,7 @@ import styles from '../products/CatalogTabs.module.css';
 const TABS = [
   { to: '/purchases', label: 'Закупки', end: true },
   { to: '/purchases/receiving', label: 'Приём товара', end: false },
+  { to: '/purchases/history', label: 'История и оплаты', end: false },
   { to: '/suppliers', label: 'Поставщики', end: false },
 ];
 

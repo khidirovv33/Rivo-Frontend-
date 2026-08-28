@@ -13,13 +13,13 @@ interface InventoryStartFormProps {
 }
 
 export function InventoryStartForm({ onSubmit, onCancel, isSaving, serverError }: InventoryStartFormProps) {
-  const { currentBranch } = useStoreBranch();
+  const { currentStore } = useStoreBranch();
   const [warehouseId, setWarehouseId] = useState('');
 
   const { data: warehouses = [] } = useQuery({
-    queryKey: ['warehouses', currentBranch?.id],
-    queryFn: () => warehousesApi.listAllWarehouses(currentBranch!.id),
-    enabled: Boolean(currentBranch),
+    queryKey: ['warehouses', currentStore?.id],
+    queryFn: () => warehousesApi.listAllWarehouses(currentStore!.id),
+    enabled: Boolean(currentStore),
   });
 
   return (
