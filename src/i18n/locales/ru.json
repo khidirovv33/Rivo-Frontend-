@@ -30,7 +30,10 @@
     "storeNotSelected": "Магазин не выбран",
     "loading": "Загрузка…",
     "logout": "Выйти",
-    "language": "Язык"
+    "language": "Язык",
+    "theme": "Тема",
+    "themeToLight": "Включить светлую тему",
+    "themeToDark": "Включить тёмную тему"
   },
   "auth": {
     "login": {

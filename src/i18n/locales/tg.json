@@ -30,7 +30,10 @@
     "storeNotSelected": "Мағоза интихоб нашудааст",
     "loading": "Боргирӣ…",
     "logout": "Баромадан",
-    "language": "Забон"
+    "language": "Забон",
+    "theme": "Мавзӯъ",
+    "themeToLight": "Фаъол кардани мавзӯи равшан",
+    "themeToDark": "Фаъол кардани мавзӯи торик"
   },
   "auth": {
     "login": {

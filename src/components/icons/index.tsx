@@ -297,3 +297,21 @@ export const VolumeIcon = createIcon(
     <path d="M19 6a9 9 0 0 1 0 12" />
   </>,
 );
+
+export const SunIcon = createIcon(
+  <>
+    <circle cx="12" cy="12" r="4.2" />
+    <path d="M12 2v3" />
+    <path d="M12 19v3" />
+    <path d="M4.2 4.2l2.1 2.1" />
+    <path d="M17.7 17.7l2.1 2.1" />
+    <path d="M2 12h3" />
+    <path d="M19 12h3" />
+    <path d="M4.2 19.8l2.1-2.1" />
+    <path d="M17.7 6.3l2.1-2.1" />
+  </>,
+);
+
+export const MoonIcon = createIcon(
+  <path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11z" />,
+);

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDownIcon, LogOutIcon, MenuIcon, StoreIcon } from '../icons';
 import { LanguageSwitcher } from '../LanguageSwitcher/LanguageSwitcher';
+import { ThemeToggle } from '../ThemeToggle/ThemeToggle';
 import styles from './Topbar.module.css';
 
 export interface StoreOption {
@@ -87,6 +88,7 @@ export function Topbar({
         )}
       </div>
       <LanguageSwitcher />
+      <ThemeToggle />
       <div className={styles.divider} />
       <div className={styles.user}>
         <div className={styles.userInfo}>
