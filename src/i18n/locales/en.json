@@ -30,7 +30,10 @@
     "storeNotSelected": "No store selected",
     "loading": "Loading…",
     "logout": "Log out",
-    "language": "Language"
+    "language": "Language",
+    "theme": "Theme",
+    "themeToLight": "Switch to light theme",
+    "themeToDark": "Switch to dark theme"
   },
   "auth": {
     "login": {
